@@ -1,12 +1,10 @@
 import React, { useRef, useCallback, useMemo } from 'react';
+import { View, StyleSheet, ViewStyle } from 'react-native';
 import {
-  View,
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-  State,
+  Gesture,
+  GestureDetector,
 } from 'react-native-gesture-handler';
 import Animated, {
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -15,7 +13,6 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 import { HapticFeedbackTypes, trigger } from 'react-native-haptic-feedback';
-import { StyleSheet, ViewStyle } from 'react-native';
 
 export interface AnimatedSliderProps {
   /**
@@ -158,36 +155,36 @@ export const AnimatedSlider: React.FC<AnimatedSliderProps> = ({
     }
   }, [disabled, triggerHapticFeedback, onActivate]);
   
-  const gestureHandler = useAnimatedGestureHandler<
-    PanGestureHandlerGestureEvent,
-    { startX: number }
-  >({
-    onStart: (_, context) => {
-      context.startX = translateX.value;
-    },
-    onActive: (event, context) => {
-      if (disabled) return;
-      
-      const newTranslateX = Math.max(
-        0,
-        Math.min(maxTranslateX, context.startX + event.translationX)
-      );
-      translateX.value = newTranslateX;
-      
-      // Check if we've reached the activation point
-      if (newTranslateX >= activationPoint && !isActivated.current) {
-        isActivated.current = true;
-        runOnJS(handleActivation)();
-      }
-    },
-    onEnd: () => {
-      if (disabled) return;
-      
-      // Always spring back to start position
-      translateX.value = withSpring(0, springConfig);
-      isActivated.current = false;
-    },
-  });
+  const panGesture = useMemo(() => 
+    Gesture.Pan()
+      .enabled(!disabled)
+      .onStart(() => {
+        // Store the starting position (already in translateX.value)
+      })
+      .onUpdate((event) => {
+        if (disabled) return;
+        
+        const newTranslateX = Math.max(
+          0,
+          Math.min(maxTranslateX, event.translationX)
+        );
+        translateX.value = newTranslateX;
+        
+        // Check if we've reached the activation point
+        if (newTranslateX >= activationPoint && !isActivated.current) {
+          isActivated.current = true;
+          runOnJS(handleActivation)();
+        }
+      })
+      .onEnd(() => {
+        if (disabled) return;
+        
+        // Always spring back to start position
+        translateX.value = withSpring(0, springConfig);
+        isActivated.current = false;
+      }),
+    [disabled, maxTranslateX, activationPoint, handleActivation, springConfig]
+  );
   
   const thumbAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -224,12 +221,9 @@ export const AnimatedSlider: React.FC<AnimatedSliderProps> = ({
     <View style={[styles.container, containerStyle, { opacity: containerOpacity }]}>
       <View style={[styles.track, trackStyle]}>
         <Animated.View style={[styles.activeTrack, activeTrackAnimatedStyle]} />
-        <PanGestureHandler
-          onGestureEvent={gestureHandler}
-          enabled={!disabled}
-        >
+        <GestureDetector gesture={panGesture}>
           <Animated.View style={[styles.thumb, thumbStyle, thumbAnimatedStyle]} />
-        </PanGestureHandler>
+        </GestureDetector>
       </View>
     </View>
   );

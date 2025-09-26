@@ -215,7 +215,7 @@ const handleSliderActivation = () => {
 - React Native >= 0.60.0
 - React >= 16.8.0
 - react-native-reanimated >= 2.0.0
-- react-native-gesture-handler >= 2.0.0
+- react-native-gesture-handler >= 2.8.0 (uses modern Gesture API)
 - react-native-haptic-feedback >= 1.0.0
 - ably >= 2.12.0 (optional, for real-time features)
 
