@@ -23,7 +23,7 @@ npm install react-native-animated-slider
 This component requires the following peer dependencies:
 
 ```bash
-npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback
+npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback ably
 ```
 
 ### iOS Setup
@@ -40,6 +40,7 @@ For Android, make sure to follow the setup instructions for:
 - [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation)
 - [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation)
 - [React Native Haptic Feedback](https://github.com/mkuczera/react-native-haptic-feedback)
+- [Ably React Native SDK](https://ably.com/docs/getting-started/setup)
 
 ## Basic Usage
 
@@ -184,6 +185,31 @@ interface SpringConfig {
 4. **Haptic Feedback**: Native haptic feedback is triggered on activation (if enabled)
 5. **Spring Back**: After release, the thumb smoothly springs back to the starting position
 
+## Real-time Integration with Ably
+
+The slider component can be integrated with Ably for real-time features. See `example/AblyIntegrationExample.tsx` for a complete example that demonstrates:
+
+- Broadcasting slider activations to all connected users
+- Real-time synchronization across multiple devices
+- Connection status monitoring
+- Live statistics tracking
+
+```tsx
+import * as Ably from 'ably';
+
+// Initialize Ably client
+const ably = new Ably.Realtime({ key: 'your-ably-api-key' });
+const channel = ably.channels.get('slider-activations');
+
+// Broadcast activation
+const handleSliderActivation = () => {
+  channel.publish('activation', {
+    timestamp: new Date().toISOString(),
+    userId: 'user-123',
+  });
+};
+```
+
 ## Requirements
 
 - React Native >= 0.60.0
@@ -191,6 +217,7 @@ interface SpringConfig {
 - react-native-reanimated >= 2.0.0
 - react-native-gesture-handler >= 2.0.0
 - react-native-haptic-feedback >= 1.0.0
+- ably >= 2.12.0 (optional, for real-time features)
 
 ## Contributing
 
