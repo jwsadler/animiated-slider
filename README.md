@@ -59,7 +59,10 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <AnimatedSlider onActivate={handleSliderActivation} />
+        <AnimatedSlider 
+          onActivate={handleSliderActivation}
+          label="Slide to activate"
+        />
       </View>
     </GestureHandlerRootView>
   );
@@ -117,6 +120,8 @@ const CustomSlider = () => {
 |------|------|---------|-------------|
 | `onActivate` | `() => void` | **Required** | Callback function called when slider is fully activated |
 | `disabled` | `boolean` | `false` | Whether the slider is disabled |
+| `label` | `string` | `undefined` | Label text to display on the slider |
+| `labelStyle` | `TextStyle` | `undefined` | Style for the label text |
 | `width` | `number` | `300` | Width of the slider container |
 | `height` | `number` | `60` | Height of the slider container |
 | `thumbSize` | `number` | `50` | Size of the slider thumb |
@@ -152,6 +157,8 @@ interface SpringConfig {
   thumbColor="#2ECC71"
   activeTrackColor="#27AE60"
   borderRadius={25}
+  label="Slide to confirm"
+  labelStyle={{ color: '#27AE60', fontWeight: 'bold' }}
 />
 ```
 
@@ -163,6 +170,8 @@ interface SpringConfig {
   thumbColor="#FF6B6B"
   activeTrackColor="#FF4757"
   borderRadius={25}
+  label="Swipe to delete"
+  labelStyle={{ color: '#FF4757', fontSize: 14 }}
 />
 ```
 
@@ -174,6 +183,8 @@ interface SpringConfig {
   height={40}
   thumbSize={30}
   borderRadius={20}
+  label="→"
+  labelStyle={{ fontSize: 18, color: '#666' }}
 />
 ```
 

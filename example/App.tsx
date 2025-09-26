@@ -42,10 +42,11 @@ const App: React.FC = () => {
           <View style={styles.slidersContainer}>
             {/* Default Slider */}
             <View style={styles.sliderSection}>
-              <Text style={styles.sliderLabel}>Default Slider</Text>
+              <Text style={styles.sliderLabel}>Default Slider with Label</Text>
               <AnimatedSlider
                 onActivate={handleSliderActivation}
                 disabled={isDisabled}
+                label="Slide to activate"
               />
             </View>
 
@@ -63,6 +64,8 @@ const App: React.FC = () => {
                 activeTrackColor="#FF4757"
                 borderRadius={25}
                 activationThreshold={0.7}
+                label="Swipe right"
+                labelStyle={{ color: '#FF4757', fontWeight: 'bold' }}
               />
             </View>
 
@@ -80,6 +83,8 @@ const App: React.FC = () => {
                 activeTrackColor="#5352ED"
                 borderRadius={20}
                 disabledOpacity={0.3}
+                label="→"
+                labelStyle={{ fontSize: 18, color: '#3742FA' }}
               />
             </View>
 

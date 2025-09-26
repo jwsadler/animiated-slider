@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useMemo } from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import {
   Gesture,
   GestureDetector,
@@ -25,6 +25,16 @@ export interface AnimatedSliderProps {
    * @default false
    */
   disabled?: boolean;
+  
+  /**
+   * Label text to display on the slider
+   */
+  label?: string;
+  
+  /**
+   * Style for the label text
+   */
+  labelStyle?: TextStyle;
   
   /**
    * Width of the slider container
@@ -120,6 +130,8 @@ const defaultSpringConfig = {
 export const AnimatedSlider: React.FC<AnimatedSliderProps> = ({
   onActivate,
   disabled = false,
+  label,
+  labelStyle,
   width = 300,
   height = 60,
   thumbSize = 50,
@@ -221,6 +233,11 @@ export const AnimatedSlider: React.FC<AnimatedSliderProps> = ({
     <View style={[styles.container, containerStyle, { opacity: containerOpacity }]}>
       <View style={[styles.track, trackStyle]}>
         <Animated.View style={[styles.activeTrack, activeTrackAnimatedStyle]} />
+        {label && (
+          <Text style={[styles.label, labelStyle, { opacity: disabled ? disabledOpacity : 1 }]}>
+            {label}
+          </Text>
+        )}
         <GestureDetector gesture={panGesture}>
           <Animated.View style={[styles.thumb, thumbStyle, thumbAnimatedStyle]} />
         </GestureDetector>
@@ -285,6 +302,15 @@ const createStyles = ({
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,
+    },
+    label: {
+      position: 'absolute',
+      alignSelf: 'center',
+      fontSize: 16,
+      fontWeight: '600',
+      color: '#666',
+      textAlign: 'center',
+      zIndex: 1,
     },
   });
 
