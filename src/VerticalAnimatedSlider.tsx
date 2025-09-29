@@ -243,9 +243,20 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
       <View style={[styles.track, trackStyle]}>
         <Animated.View style={[styles.activeTrack, activeTrackAnimatedStyle]} />
         
-        {/* Background Arrow */}
+        {/* Background Arrow with Segmented Shaft */}
         <View style={styles.backgroundArrow}>
-          <Text style={styles.arrowText}>↑</Text>
+          {/* Arrow Head */}
+          <View style={styles.arrowHead} />
+          
+          {/* Segmented Shaft - segments get closer together toward top */}
+          <View style={styles.arrowShaft}>
+            <View style={[styles.segment, { marginBottom: 8 }]} />
+            <View style={[styles.segment, { marginBottom: 12 }]} />
+            <View style={[styles.segment, { marginBottom: 16 }]} />
+            <View style={[styles.segment, { marginBottom: 20 }]} />
+            <View style={[styles.segment, { marginBottom: 24 }]} />
+            <View style={[styles.segment, { marginBottom: 28 }]} />
+          </View>
         </View>
         
         <GestureDetector gesture={panGesture}>
@@ -333,15 +344,36 @@ const createStyles = ({
     },
     backgroundArrow: {
       position: 'absolute',
-      top: '20%',
+      top: '15%',
+      bottom: '15%',
       alignSelf: 'center',
       zIndex: 0,
+      justifyContent: 'flex-start',
+      alignItems: 'center',
     },
-    arrowText: {
-      fontSize: 40,
-      color: '#DDD',
-      fontWeight: 'bold',
+    arrowHead: {
+      width: 0,
+      height: 0,
+      borderLeftWidth: 12,
+      borderRightWidth: 12,
+      borderBottomWidth: 20,
+      borderLeftColor: 'transparent',
+      borderRightColor: 'transparent',
+      borderBottomColor: '#DDD',
       opacity: 0.3,
+      marginBottom: 4,
+    },
+    arrowShaft: {
+      alignItems: 'center',
+      flex: 1,
+      justifyContent: 'flex-start',
+    },
+    segment: {
+      width: 4,
+      height: 12,
+      backgroundColor: '#DDD',
+      opacity: 0.3,
+      borderRadius: 2,
     },
   });
 
