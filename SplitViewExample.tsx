@@ -6,7 +6,7 @@ import SplitView from './SplitView';
  * Example usage of the SplitView component
  * Demonstrates various ways to use the split view functionality
  */
-const SplitViewExample = () => {
+const SplitViewExample: React.FC = () => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>SplitView Component Examples</Text>

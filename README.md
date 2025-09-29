@@ -10,15 +10,15 @@ A flexible React Native component that allows you to display child components si
 - ✅ **Flexible Styling**: Individual styling for each section
 - ✅ **Gap Control**: Customizable spacing between sections
 - ✅ **Nested Splits**: Create complex layouts by nesting SplitViews
-- ✅ **TypeScript Ready**: Full PropTypes support
+- ✅ **TypeScript Support**: Full TypeScript definitions included
 
 ## Installation
 
-Simply copy the `SplitView.js` file to your React Native project.
+Simply copy the `SplitView.tsx` file to your React Native project.
 
 ```bash
-# If using PropTypes (recommended)
-npm install prop-types
+# TypeScript dependencies (if not already installed)
+npm install --save-dev typescript @types/react @types/react-native
 ```
 
 ## Basic Usage
@@ -44,15 +44,38 @@ const MyComponent = () => {
 
 ## Props
 
+The component extends React Native's `ViewProps` and includes the following additional props:
+
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `children` | `ReactNode` | **required** | Child components to display in the split view |
-| `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | Direction of the split |
-| `splitRatio` | `number[]` | `[equal split]` | Array of ratios for each child (e.g., `[0.7, 0.3]`) |
-| `gap` | `number` | `0` | Gap between sections in pixels |
-| `style` | `ViewStyle` | `undefined` | Additional styles for the container |
-| `sectionStyle` | `ViewStyle` | `undefined` | Common styles applied to each section |
-| `sectionStyles` | `ViewStyle[]` | `[]` | Individual styles for each section |
+| `children` | `React.ReactNode` | **required** | Child components to display in the split view |
+| `direction?` | `'horizontal' \| 'vertical'` | `'horizontal'` | Direction of the split |
+| `splitRatio?` | `number[]` | `[equal split]` | Array of ratios for each child (e.g., `[0.7, 0.3]`) |
+| `gap?` | `number` | `0` | Gap between sections in pixels |
+| `style?` | `ViewStyle` | `undefined` | Additional styles for the container |
+| `sectionStyle?` | `ViewStyle` | `undefined` | Common styles applied to each section |
+| `sectionStyles?` | `ViewStyle[]` | `[]` | Individual styles for each section |
+
+## TypeScript Support
+
+The component is fully typed with TypeScript interfaces:
+
+```typescript
+import SplitView, { SplitViewProps, SplitDirection } from './SplitView';
+
+// Type-safe usage
+const MyComponent: React.FC = () => {
+  const direction: SplitDirection = 'horizontal';
+  const ratios: number[] = [0.6, 0.4];
+  
+  return (
+    <SplitView direction={direction} splitRatio={ratios}>
+      <ComponentA />
+      <ComponentB />
+    </SplitView>
+  );
+};
+```
 
 ## Examples
 
@@ -152,8 +175,10 @@ const Dashboard = () => {
 
 ## Files
 
-- `SplitView.js` - Main component
-- `SplitViewExample.js` - Comprehensive examples
+- `SplitView.tsx` - Main TypeScript component with full type definitions
+- `SplitViewExample.tsx` - Comprehensive TypeScript examples
+- `tsconfig.json` - TypeScript configuration
+- `package.json` - Package configuration with TypeScript support
 - `README.md` - This documentation
 
 ## License

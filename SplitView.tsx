@@ -1,23 +1,32 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import PropTypes from 'prop-types';
+import { View, StyleSheet, ViewStyle, ViewProps } from 'react-native';
+
+export type SplitDirection = 'horizontal' | 'vertical';
+
+export interface SplitViewProps extends Omit<ViewProps, 'style'> {
+  /** Child components to display in the split view */
+  children: React.ReactNode;
+  /** Direction of the split (default: 'horizontal') */
+  direction?: SplitDirection;
+  /** Array of ratios for each child (default: equal split) */
+  splitRatio?: number[];
+  /** Gap between split sections in pixels (default: 0) */
+  gap?: number;
+  /** Additional styles for the container */
+  style?: ViewStyle;
+  /** Common styles applied to each section */
+  sectionStyle?: ViewStyle;
+  /** Individual styles for each section */
+  sectionStyles?: ViewStyle[];
+}
 
 /**
  * SplitView Component
  * 
  * A flexible React Native component that can display child components side by side
  * or stacked vertically with customizable split ratios and styling.
- * 
- * @param {Object} props - Component props
- * @param {React.ReactNode} props.children - Child components to display
- * @param {'horizontal'|'vertical'} props.direction - Split direction (default: 'horizontal')
- * @param {number[]} props.splitRatio - Array of ratios for each child (default: equal split)
- * @param {number} props.gap - Gap between split sections in pixels (default: 0)
- * @param {Object} props.style - Additional styles for the container
- * @param {Object} props.sectionStyle - Common styles applied to each section
- * @param {Object[]} props.sectionStyles - Individual styles for each section
  */
-const SplitView = ({
+const SplitView: React.FC<SplitViewProps> = ({
   children,
   direction = 'horizontal',
   splitRatio,
@@ -46,11 +55,11 @@ const SplitView = ({
     style,
   ];
 
-  const renderChild = (child, index) => {
+  const renderChild = (child: React.ReactNode, index: number): React.ReactElement => {
     const ratio = normalizedRatios[index];
     const isLast = index === childCount - 1;
     
-    const childStyle = [
+    const childStyle: ViewStyle[] = [
       styles.section,
       direction === 'horizontal' 
         ? { 
@@ -63,7 +72,7 @@ const SplitView = ({
           },
       sectionStyle,
       sectionStyles[index],
-    ];
+    ].filter(Boolean);
 
     return (
       <View key={index} style={childStyle}>
@@ -93,15 +102,5 @@ const styles = StyleSheet.create({
     // Base section styles - can be overridden
   },
 });
-
-SplitView.propTypes = {
-  children: PropTypes.node.isRequired,
-  direction: PropTypes.oneOf(['horizontal', 'vertical']),
-  splitRatio: PropTypes.arrayOf(PropTypes.number),
-  gap: PropTypes.number,
-  style: PropTypes.object,
-  sectionStyle: PropTypes.object,
-  sectionStyles: PropTypes.arrayOf(PropTypes.object),
-};
 
 export default SplitView;
