@@ -1,0 +1,36 @@
+{
+  "name": "react-native-split-view",
+  "version": "1.0.0",
+  "description": "A flexible React Native component that allows you to display child components side by side or stacked vertically with customizable split ratios and styling.",
+  "main": "SplitView.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "split-view",
+    "layout",
+    "component",
+    "ui",
+    "split-screen",
+    "side-by-side",
+    "flexible-layout"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
+  },
+  "dependencies": {
+    "prop-types": "^15.8.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jwsadler/animiated-slider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jwsadler/animiated-slider/issues"
+  },
+  "homepage": "https://github.com/jwsadler/animiated-slider#readme"
+}
