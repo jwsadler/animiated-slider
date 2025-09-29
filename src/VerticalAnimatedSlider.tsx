@@ -165,7 +165,7 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   springConfig = defaultSpringConfig,
 }) => {
   const translateY = useSharedValue(0);
-  const isActivated = useRef(false);
+  const isActivated = useSharedValue(false); // Use shared value instead of ref
 
   // Calculate actual thumb dimensions (with fallback to thumbSize for backward compatibility)
   const actualThumbWidth = thumbWidth ?? thumbSize;
@@ -183,8 +183,7 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   }, [hapticFeedback]);
 
   const handleActivation = useCallback(() => {
-    if (!disabled && !isActivated.current) {
-      isActivated.current = true;
+    if (!disabled) {
       triggerHapticFeedback();
       onActivate();
     }
@@ -193,6 +192,7 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   const panGesture = Gesture.Pan()
     .enabled(!disabled)
     .onUpdate((event) => {
+      'worklet';
       // Invert the translation - negative values move up from bottom
       const newTranslateY = Math.max(
         Math.min(-event.translationY, maxTranslateY),
@@ -202,17 +202,19 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
 
       // Check if we've reached the activation threshold
       const progress = newTranslateY / maxTranslateY;
-      if (progress >= activationThreshold && !isActivated.current) {
+      if (progress >= activationThreshold && !isActivated.value) {
+        isActivated.value = true;
         runOnJS(handleActivation)();
       }
     })
     .onEnd(() => {
+      'worklet';
       // Reset the thumb position with spring animation
-      translateY.value = withSpring(0, springConfig);
-      // Reset activation state only after the thumb returns to bottom
-      setTimeout(() => {
-        isActivated.current = false;
-      }, 300); // Small delay to ensure spring animation completes
+      translateY.value = withSpring(0, springConfig, () => {
+        'worklet';
+        // Reset activation state only after the spring animation completes
+        isActivated.value = false;
+      });
     });
 
   const thumbAnimatedStyle = useAnimatedStyle(() => ({
