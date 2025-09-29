@@ -307,7 +307,7 @@ const createStyles = ({
   // Calculate arrow dimensions based on track width and arrowWidth parameter
   const trackWidth = width - 10; // Track has 10px total padding
   const maxArrowWidth = trackWidth * Math.max(0.1, Math.min(1.0, arrowWidth)); // Clamp between 0.1 and 1.0
-  const arrowHeadWidth = Math.min(maxArrowWidth * 0.5, 12); // Arrow head proportional to max width, but capped
+  const arrowHeadWidth = maxArrowWidth * 0.5; // Arrow head width - half of the base segment width for proper triangle
   
   return StyleSheet.create({
     container: {
