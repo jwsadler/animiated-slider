@@ -1,6 +1,6 @@
 # React Native Animated Slider
 
-A smooth, customizable animated horizontal slider button component for React Native with TypeScript support. Perfect for iOS and Android applications that need an engaging slide-to-activate interaction.
+A smooth, customizable animated slider button component for React Native with TypeScript support. Includes both horizontal and vertical slider variants. Perfect for iOS and Android applications that need an engaging slide-to-activate interaction.
 
 ## Features
 
@@ -11,6 +11,7 @@ A smooth, customizable animated horizontal slider button component for React Nat
 📱 **Cross-Platform**: Works seamlessly on iOS and Android  
 🔧 **TypeScript**: Full TypeScript support with comprehensive type definitions  
 ⚡ **Gesture Handling**: Smooth pan gesture handling with spring-back animation  
+🔄 **Dual Orientation**: Both horizontal (left-to-right) and vertical (bottom-to-top) sliders  
 
 ## Installation
 
@@ -71,6 +72,37 @@ const App = () => {
 export default App;
 ```
 
+## Vertical Slider Usage
+
+```tsx
+import React from 'react';
+import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { VerticalAnimatedSlider } from 'react-native-animated-slider';
+
+const App = () => {
+  const handleSliderActivation = () => {
+    console.log('Vertical slider activated!');
+    // Your activation logic here
+  };
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <VerticalAnimatedSlider 
+          onActivate={handleSliderActivation}
+          label="↑"
+          height={300}
+          width={60}
+        />
+      </View>
+    </GestureHandlerRootView>
+  );
+};
+
+export default App;
+```
+
 ## Advanced Usage
 
 ```tsx
@@ -116,6 +148,8 @@ const CustomSlider = () => {
 
 ## Props
 
+### AnimatedSlider (Horizontal)
+
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `onActivate` | `() => void` | **Required** | Callback function called when slider is fully activated |
@@ -124,6 +158,29 @@ const CustomSlider = () => {
 | `labelStyle` | `TextStyle` | `undefined` | Style for the label text |
 | `width` | `number` | `300` | Width of the slider container |
 | `height` | `number` | `60` | Height of the slider container |
+| `thumbSize` | `number` | `50` | Size of the slider thumb |
+| `trackColor` | `string` | `'#E0E0E0'` | Background color of the slider track |
+| `thumbColor` | `string` | `'#FFFFFF'` | Background color of the slider thumb |
+| `activeTrackColor` | `string` | `'#4CAF50'` | Color of the active track (filled portion) |
+| `borderRadius` | `number` | `30` | Border radius of the slider |
+| `containerStyle` | `ViewStyle` | `undefined` | Custom style for the container |
+| `trackStyle` | `ViewStyle` | `undefined` | Custom style for the track |
+| `thumbStyle` | `ViewStyle` | `undefined` | Custom style for the thumb |
+| `disabledOpacity` | `number` | `0.5` | Opacity when disabled |
+| `hapticFeedback` | `boolean` | `true` | Enable haptic feedback |
+| `activationThreshold` | `number` | `0.8` | Threshold percentage (0-1) at which the slider activates |
+| `springConfig` | `SpringConfig` | `{ damping: 15, stiffness: 150, mass: 1 }` | Spring animation configuration |
+
+### VerticalAnimatedSlider (Vertical)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onActivate` | `() => void` | **Required** | Callback function called when slider is fully activated |
+| `disabled` | `boolean` | `false` | Whether the slider is disabled |
+| `label` | `string` | `undefined` | Label text to display on the slider (rotated 90°) |
+| `labelStyle` | `TextStyle` | `undefined` | Style for the label text |
+| `width` | `number` | `60` | Width of the slider container |
+| `height` | `number` | `300` | Height of the slider container |
 | `thumbSize` | `number` | `50` | Size of the slider thumb |
 | `trackColor` | `string` | `'#E0E0E0'` | Background color of the slider track |
 | `thumbColor` | `string` | `'#FFFFFF'` | Background color of the slider thumb |
@@ -188,13 +245,56 @@ interface SpringConfig {
 />
 ```
 
+### Vertical Slider Examples
+
+```tsx
+// Default vertical slider
+<VerticalAnimatedSlider
+  onActivate={handleActivation}
+  label="↑"
+/>
+
+// Custom styled vertical slider
+<VerticalAnimatedSlider
+  onActivate={handleActivation}
+  width={50}
+  height={250}
+  thumbSize={40}
+  trackColor="#FFE0E0"
+  thumbColor="#FF6B6B"
+  activeTrackColor="#FF4757"
+  borderRadius={25}
+  label="UP"
+  labelStyle={{ color: '#FF4757', fontSize: 12, fontWeight: 'bold' }}
+/>
+
+// Compact vertical slider
+<VerticalAnimatedSlider
+  onActivate={handleActivation}
+  width={40}
+  height={200}
+  thumbSize={30}
+  trackColor="#E8F4FD"
+  thumbColor="#3742FA"
+  activeTrackColor="#5352ED"
+  borderRadius={20}
+  activationThreshold={0.7}
+  label="⬆"
+  labelStyle={{ fontSize: 14, color: '#3742FA' }}
+/>
+```
+
 ## How It Works
 
-1. **Gesture Detection**: The component uses `PanGestureHandler` to detect horizontal drag gestures
+1. **Gesture Detection**: The component uses `PanGestureHandler` to detect drag gestures (horizontal for AnimatedSlider, vertical for VerticalAnimatedSlider)
 2. **Animation**: `react-native-reanimated` provides smooth 60fps animations
 3. **Activation**: When the thumb reaches the activation threshold (default 80%), the `onActivate` callback is triggered
 4. **Haptic Feedback**: Native haptic feedback is triggered on activation (if enabled)
 5. **Spring Back**: After release, the thumb smoothly springs back to the starting position
+
+### Orientation Differences
+- **Horizontal Slider**: Slide from left to right to activate
+- **Vertical Slider**: Slide up from bottom to activate (labels are rotated 90° for vertical orientation)
 
 ## Real-time Integration with Ably
 

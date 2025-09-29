@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AnimatedSlider from '../src/AnimatedSlider';
+import VerticalAnimatedSlider from '../src/VerticalAnimatedSlider';
 
 const App: React.FC = () => {
   const [isDisabled, setIsDisabled] = useState(false);
@@ -110,9 +111,61 @@ const App: React.FC = () => {
             </View>
           </View>
 
+          {/* Vertical Sliders Section */}
+          <Text style={styles.sectionTitle}>Vertical Sliders</Text>
+          <View style={styles.verticalSlidersContainer}>
+            {/* Default Vertical Slider */}
+            <View style={styles.verticalSliderSection}>
+              <Text style={styles.sliderLabel}>Default Vertical</Text>
+              <VerticalAnimatedSlider
+                onActivate={handleSliderActivation}
+                disabled={isDisabled}
+                label="↑"
+              />
+            </View>
+
+            {/* Custom Vertical Slider */}
+            <View style={styles.verticalSliderSection}>
+              <Text style={styles.sliderLabel}>Custom Vertical</Text>
+              <VerticalAnimatedSlider
+                onActivate={handleSliderActivation}
+                disabled={isDisabled}
+                width={50}
+                height={250}
+                thumbSize={40}
+                trackColor="#FFE0E0"
+                thumbColor="#FF6B6B"
+                activeTrackColor="#FF4757"
+                borderRadius={25}
+                label="UP"
+                labelStyle={{ color: '#FF4757', fontSize: 12, fontWeight: 'bold' }}
+              />
+            </View>
+
+            {/* Compact Vertical Slider */}
+            <View style={styles.verticalSliderSection}>
+              <Text style={styles.sliderLabel}>Compact Vertical</Text>
+              <VerticalAnimatedSlider
+                onActivate={handleSliderActivation}
+                disabled={isDisabled}
+                width={40}
+                height={200}
+                thumbSize={30}
+                trackColor="#E8F4FD"
+                thumbColor="#3742FA"
+                activeTrackColor="#5352ED"
+                borderRadius={20}
+                activationThreshold={0.7}
+                label="⬆"
+                labelStyle={{ fontSize: 14, color: '#3742FA' }}
+              />
+            </View>
+          </View>
+
           <Text style={styles.instructions}>
-            Slide the thumb from left to right to activate the slider.
-            It will spring back to the starting position after release.
+            Horizontal: Slide from left to right to activate.{'\n'}
+            Vertical: Slide up from bottom to activate.{'\n'}
+            All sliders spring back to starting position after release.
           </Text>
         </View>
       </SafeAreaView>
@@ -160,6 +213,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 15,
+    color: '#333',
+  },
   slidersContainer: {
     flex: 1,
     justifyContent: 'space-around',
@@ -167,6 +228,16 @@ const styles = StyleSheet.create({
   sliderSection: {
     alignItems: 'center',
     marginVertical: 15,
+  },
+  verticalSlidersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  verticalSliderSection: {
+    alignItems: 'center',
+    marginHorizontal: 10,
   },
   sliderLabel: {
     fontSize: 16,
