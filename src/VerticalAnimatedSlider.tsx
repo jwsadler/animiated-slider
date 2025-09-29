@@ -308,6 +308,7 @@ const createStyles = ({
   const trackWidth = width - 10; // Track has 10px total padding
   const maxArrowWidth = trackWidth * Math.max(0.1, Math.min(1.0, arrowWidth)); // Clamp between 0.1 and 1.0
   const arrowHeadWidth = maxArrowWidth * 0.5; // Arrow head width - half of the base segment width for proper triangle
+  const arrowHeadHeight = 20; // Fixed height for consistent arrow head proportions
   
   return StyleSheet.create({
     container: {
@@ -371,7 +372,7 @@ const createStyles = ({
       height: 0,
       borderLeftWidth: arrowHeadWidth,
       borderRightWidth: arrowHeadWidth,
-      borderBottomWidth: arrowHeadWidth * 1.67, // Maintain proportional height
+      borderBottomWidth: arrowHeadHeight, // Fixed height for consistent proportions
       borderLeftColor: 'transparent',
       borderRightColor: 'transparent',
       borderBottomColor: '#DDD',
