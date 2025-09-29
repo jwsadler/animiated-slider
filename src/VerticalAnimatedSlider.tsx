@@ -248,14 +248,14 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
           {/* Arrow Head */}
           <View style={styles.arrowHead} />
           
-          {/* Segmented Shaft - segments get closer together toward top */}
+          {/* Segmented Shaft - segments get closer together and narrower toward top */}
           <View style={styles.arrowShaft}>
-            <View style={[styles.segment, { marginBottom: 8 }]} />
-            <View style={[styles.segment, { marginBottom: 12 }]} />
-            <View style={[styles.segment, { marginBottom: 16 }]} />
-            <View style={[styles.segment, { marginBottom: 20 }]} />
-            <View style={[styles.segment, { marginBottom: 24 }]} />
-            <View style={[styles.segment, { marginBottom: 28 }]} />
+            <View style={[styles.segment, styles.segment1, { marginBottom: 8 }]} />
+            <View style={[styles.segment, styles.segment2, { marginBottom: 12 }]} />
+            <View style={[styles.segment, styles.segment3, { marginBottom: 16 }]} />
+            <View style={[styles.segment, styles.segment4, { marginBottom: 20 }]} />
+            <View style={[styles.segment, styles.segment5, { marginBottom: 24 }]} />
+            <View style={[styles.segment, styles.segment6, { marginBottom: 28 }]} />
           </View>
         </View>
         
@@ -369,12 +369,18 @@ const createStyles = ({
       justifyContent: 'flex-start',
     },
     segment: {
-      width: 4,
       height: 12,
       backgroundColor: '#DDD',
       opacity: 0.3,
       borderRadius: 2,
     },
+    // Segments get progressively narrower toward the top
+    segment1: { width: 4 },   // Narrowest (top)
+    segment2: { width: 8 },
+    segment3: { width: 12 },
+    segment4: { width: 16 },
+    segment5: { width: 20 },
+    segment6: { width: 24 },  // Widest (bottom, matches arrow head base)
   });
 
 export default VerticalAnimatedSlider;
