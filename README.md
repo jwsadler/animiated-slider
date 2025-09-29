@@ -24,8 +24,10 @@ npm install react-native-animated-slider
 This component requires the following peer dependencies:
 
 ```bash
-npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback ably
+npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback react-native-linear-gradient ably
 ```
+
+**Note**: `react-native-linear-gradient` is only required if you plan to use the gradient effect (`useGradient={true}`).
 
 ### iOS Setup
 
@@ -146,6 +148,41 @@ const CustomSlider = () => {
 };
 ```
 
+## Gradient Effect
+
+Both horizontal and vertical sliders support a beautiful gradient effect for the active track. When enabled, the active track transitions from transparent to the `activeTrackColor`.
+
+### Horizontal Gradient Example
+
+```tsx
+<AnimatedSlider
+  onActivate={() => console.log('Activated!')}
+  useGradient={true}
+  activeTrackColor="#6C5CE7"
+  trackColor="#F5F5F5"
+  thumbColor="#FFFFFF"
+  label="Slide with gradient"
+/>
+```
+
+### Vertical Gradient Example
+
+```tsx
+<VerticalAnimatedSlider
+  onActivate={() => console.log('Activated!')}
+  useGradient={true}
+  activeTrackColor="#A55EEA"
+  trackColor="#F8F9FA"
+  thumbColor="#FFFFFF"
+  height={280}
+  width={60}
+/>
+```
+
+The gradient creates a smooth visual transition:
+- **Horizontal**: Transparent at left → `activeTrackColor` at right
+- **Vertical**: Transparent at bottom → `activeTrackColor` at top
+
 ## Props
 
 ### AnimatedSlider (Horizontal)
@@ -170,7 +207,7 @@ const CustomSlider = () => {
 | `hapticFeedback` | `boolean` | `true` | Enable haptic feedback |
 | `activationThreshold` | `number` | `0.8` | Threshold percentage (0-1) at which the slider activates |
 | `springConfig` | `SpringConfig` | `{ damping: 15, stiffness: 150, mass: 1 }` | Spring animation configuration |
-| `arrowWidth` | `number` | `0.8` | Width of background arrow as percentage of track width (0.1-1.0) |
+| `useGradient` | `boolean` | `false` | Enable gradient effect for active track (transparent at left to activeTrackColor at right) |
 
 ### VerticalAnimatedSlider (Vertical)
 
@@ -197,6 +234,7 @@ const CustomSlider = () => {
 | `activationThreshold` | `number` | `0.8` | Threshold percentage (0-1) at which the slider activates |
 | `springConfig` | `SpringConfig` | `{ damping: 15, stiffness: 150, mass: 1 }` | Spring animation configuration |
 | `arrowWidth` | `number` | `0.8` | Width of background arrow as percentage of track width (0.1-1.0) |
+| `useGradient` | `boolean` | `false` | Enable gradient effect for active track (transparent at bottom to activeTrackColor at top) |
 
 ### SpringConfig
 

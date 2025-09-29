@@ -109,6 +109,25 @@ const App: React.FC = () => {
                 }}
               />
             </View>
+
+            {/* Gradient Slider */}
+            <View style={styles.sliderSection}>
+              <Text style={styles.sliderLabel}>Gradient Effect</Text>
+              <AnimatedSlider
+                onActivate={handleSliderActivation}
+                disabled={isDisabled}
+                width={300}
+                height={60}
+                thumbSize={50}
+                trackColor="#F5F5F5"
+                thumbColor="#FFFFFF"
+                activeTrackColor="#6C5CE7"
+                borderRadius={30}
+                useGradient={true}
+                label="Slide with gradient"
+                labelStyle={{ color: '#6C5CE7', fontWeight: '600' }}
+              />
+            </View>
           </View>
 
           {/* Vertical Sliders Section */}
@@ -160,6 +179,27 @@ const App: React.FC = () => {
                 activationThreshold={0.7}
                 label="GO"
                 labelStyle={{ fontSize: 10, color: '#FFFFFF', fontWeight: 'bold' }}
+              />
+            </View>
+
+            {/* Gradient Vertical Slider */}
+            <View style={styles.verticalSliderSection}>
+              <Text style={styles.sliderLabel}>Gradient Vertical</Text>
+              <VerticalAnimatedSlider
+                onActivate={handleSliderActivation}
+                disabled={isDisabled}
+                width={60}
+                height={280}
+                thumbWidth={50}
+                thumbHeight={30}
+                trackColor="#F8F9FA"
+                thumbColor="#FFFFFF"
+                activeTrackColor="#A55EEA"
+                borderRadius={30}
+                useGradient={true}
+                arrowWidth={0.6}
+                label="UP"
+                labelStyle={{ fontSize: 12, color: '#FFFFFF', fontWeight: 'bold' }}
               />
             </View>
           </View>

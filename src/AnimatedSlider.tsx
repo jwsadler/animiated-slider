@@ -13,6 +13,7 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 import { HapticFeedbackTypes, trigger } from 'react-native-haptic-feedback';
+import LinearGradient from 'react-native-linear-gradient';
 
 export interface AnimatedSliderProps {
   /**
@@ -119,6 +120,12 @@ export interface AnimatedSliderProps {
     stiffness?: number;
     mass?: number;
   };
+
+  /**
+   * Enable gradient effect for active track (transparent at left to activeTrackColor at right)
+   * @default false
+   */
+  useGradient?: boolean;
 }
 
 const defaultSpringConfig = {
@@ -146,6 +153,7 @@ export const AnimatedSlider: React.FC<AnimatedSliderProps> = ({
   hapticFeedback = true,
   activationThreshold = 0.8,
   springConfig = defaultSpringConfig,
+  useGradient = false,
 }) => {
   const translateX = useSharedValue(0);
   const isActivated = useRef(false);
@@ -232,7 +240,19 @@ export const AnimatedSlider: React.FC<AnimatedSliderProps> = ({
   return (
     <View style={[styles.container, containerStyle, { opacity: containerOpacity }]}>
       <View style={[styles.track, trackStyle]}>
-        <Animated.View style={[styles.activeTrack, activeTrackAnimatedStyle]} />
+        {useGradient ? (
+          <Animated.View style={[styles.activeTrackContainer, activeTrackAnimatedStyle]}>
+            <LinearGradient
+              colors={['transparent', activeTrackColor]}
+              locations={[0, 1]}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 0}}
+              style={styles.activeTrackGradient}
+            />
+          </Animated.View>
+        ) : (
+          <Animated.View style={[styles.activeTrack, activeTrackAnimatedStyle]} />
+        )}
         {label && (
           <Text style={[styles.label, labelStyle, { opacity: disabled ? disabledOpacity : 1 }]}>
             {label}
@@ -288,6 +308,19 @@ const createStyles = ({
       height: '100%',
       backgroundColor: activeTrackColor,
       borderRadius,
+    },
+    activeTrackContainer: {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      height: '100%',
+      borderRadius,
+      overflow: 'hidden',
+    },
+    activeTrackGradient: {
+      flex: 1,
+      width: '100%',
+      height: '100%',
     },
     thumb: {
       width: thumbSize,
