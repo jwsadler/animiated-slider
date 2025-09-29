@@ -190,7 +190,10 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
     .onEnd(() => {
       // Reset the thumb position with spring animation
       translateY.value = withSpring(0, springConfig);
-      isActivated.current = false;
+      // Reset activation state only after the thumb returns to bottom
+      setTimeout(() => {
+        isActivated.current = false;
+      }, 300); // Small delay to ensure spring animation completes
     });
 
   const thumbAnimatedStyle = useAnimatedStyle(() => ({
@@ -217,13 +220,20 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
     <View style={[styles.container, containerStyle, { opacity: containerOpacity }]}>
       <View style={[styles.track, trackStyle]}>
         <Animated.View style={[styles.activeTrack, activeTrackAnimatedStyle]} />
-        {label && (
-          <Text style={[styles.label, labelStyle, { opacity: disabled ? disabledOpacity : 1 }]}>
-            {label}
-          </Text>
-        )}
+        
+        {/* Background Arrow */}
+        <View style={styles.backgroundArrow}>
+          <Text style={styles.arrowText}>↑</Text>
+        </View>
+        
         <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.thumb, thumbStyle, thumbAnimatedStyle]} />
+          <Animated.View style={[styles.thumb, thumbStyle, thumbAnimatedStyle]}>
+            {label && (
+              <Text style={[styles.thumbLabel, labelStyle, { opacity: disabled ? disabledOpacity : 1 }]}>
+                {label}
+              </Text>
+            )}
+          </Animated.View>
         </GestureDetector>
       </View>
     </View>
@@ -276,9 +286,9 @@ const createStyles = ({
     },
     thumb: {
       width: thumbSize,
-      height: thumbSize,
+      height: thumbSize * 0.6, // Make it rectangular (shorter height)
       backgroundColor: thumbColor,
-      borderRadius: thumbSize / 2,
+      borderRadius: 8, // Small border radius for rectangular shape
       shadowColor: '#000',
       shadowOffset: {
         width: 0,
@@ -287,16 +297,27 @@ const createStyles = ({
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
       elevation: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
-    label: {
-      position: 'absolute',
-      alignSelf: 'center',
-      fontSize: 16,
+    thumbLabel: {
+      fontSize: 14,
       fontWeight: '600',
       color: '#666',
       textAlign: 'center',
-      zIndex: 1,
-      transform: [{ rotate: '90deg' }], // Rotate text for vertical orientation
+      // No rotation - keep text horizontal
+    },
+    backgroundArrow: {
+      position: 'absolute',
+      top: '20%',
+      alignSelf: 'center',
+      zIndex: 0,
+    },
+    arrowText: {
+      fontSize: 40,
+      color: '#DDD',
+      fontWeight: 'bold',
+      opacity: 0.3,
     },
   });
 

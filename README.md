@@ -91,7 +91,7 @@ const App = () => {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <VerticalAnimatedSlider 
           onActivate={handleSliderActivation}
-          label="↑"
+          label="SLIDE"
           height={300}
           width={60}
         />
@@ -177,7 +177,7 @@ const CustomSlider = () => {
 |------|------|---------|-------------|
 | `onActivate` | `() => void` | **Required** | Callback function called when slider is fully activated |
 | `disabled` | `boolean` | `false` | Whether the slider is disabled |
-| `label` | `string` | `undefined` | Label text to display on the slider (rotated 90°) |
+| `label` | `string` | `undefined` | Label text to display inside the rectangular thumb (horizontal) |
 | `labelStyle` | `TextStyle` | `undefined` | Style for the label text |
 | `width` | `number` | `60` | Width of the slider container |
 | `height` | `number` | `300` | Height of the slider container |
@@ -251,7 +251,7 @@ interface SpringConfig {
 // Default vertical slider
 <VerticalAnimatedSlider
   onActivate={handleActivation}
-  label="↑"
+  label="SLIDE"
 />
 
 // Custom styled vertical slider
@@ -265,7 +265,7 @@ interface SpringConfig {
   activeTrackColor="#FF4757"
   borderRadius={25}
   label="UP"
-  labelStyle={{ color: '#FF4757', fontSize: 12, fontWeight: 'bold' }}
+  labelStyle={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}
 />
 
 // Compact vertical slider
@@ -279,8 +279,8 @@ interface SpringConfig {
   activeTrackColor="#5352ED"
   borderRadius={20}
   activationThreshold={0.7}
-  label="⬆"
-  labelStyle={{ fontSize: 14, color: '#3742FA' }}
+  label="GO"
+  labelStyle={{ fontSize: 10, color: '#FFFFFF', fontWeight: 'bold' }}
 />
 ```
 
@@ -293,8 +293,8 @@ interface SpringConfig {
 5. **Spring Back**: After release, the thumb smoothly springs back to the starting position
 
 ### Orientation Differences
-- **Horizontal Slider**: Slide from left to right to activate
-- **Vertical Slider**: Slide up from bottom to activate (labels are rotated 90° for vertical orientation)
+- **Horizontal Slider**: Slide from left to right to activate (circular thumb)
+- **Vertical Slider**: Slide up from bottom to activate (rectangular thumb with horizontal text and background arrow)
 
 ## Real-time Integration with Ably
 

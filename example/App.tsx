@@ -120,7 +120,7 @@ const App: React.FC = () => {
               <VerticalAnimatedSlider
                 onActivate={handleSliderActivation}
                 disabled={isDisabled}
-                label="↑"
+                label="SLIDE"
               />
             </View>
 
@@ -138,7 +138,7 @@ const App: React.FC = () => {
                 activeTrackColor="#FF4757"
                 borderRadius={25}
                 label="UP"
-                labelStyle={{ color: '#FF4757', fontSize: 12, fontWeight: 'bold' }}
+                labelStyle={{ color: '#FFFFFF', fontSize: 10, fontWeight: 'bold' }}
               />
             </View>
 
@@ -156,8 +156,8 @@ const App: React.FC = () => {
                 activeTrackColor="#5352ED"
                 borderRadius={20}
                 activationThreshold={0.7}
-                label="⬆"
-                labelStyle={{ fontSize: 14, color: '#3742FA' }}
+                label="GO"
+                labelStyle={{ fontSize: 10, color: '#FFFFFF', fontWeight: 'bold' }}
               />
             </View>
           </View>
