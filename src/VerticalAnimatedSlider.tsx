@@ -134,6 +134,12 @@ export interface VerticalAnimatedSliderProps {
    * @default { damping: 15, stiffness: 150, mass: 1 }
    */
   springConfig?: SpringConfig;
+  
+  /**
+   * Width of the background arrow as a percentage of track width (0.1 to 1.0)
+   * @default 0.8
+   */
+  arrowWidth?: number;
 }
 
 const defaultSpringConfig: SpringConfig = {
@@ -163,6 +169,7 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   hapticFeedback = true,
   activationThreshold = 0.8,
   springConfig = defaultSpringConfig,
+  arrowWidth = 0.8,
 }) => {
   const translateY = useSharedValue(0);
   const isActivated = useSharedValue(false); // Use shared value instead of ref
@@ -236,7 +243,8 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
     thumbColor,
     activeTrackColor,
     borderRadius,
-  }), [width, height, actualThumbWidth, actualThumbHeight, trackColor, thumbColor, activeTrackColor, borderRadius]);
+    arrowWidth,
+  }), [width, height, actualThumbWidth, actualThumbHeight, trackColor, thumbColor, activeTrackColor, borderRadius, arrowWidth]);
 
   return (
     <View style={[styles.container, containerStyle, { opacity: containerOpacity }]}>
@@ -282,6 +290,7 @@ interface StyleProps {
   thumbColor: string;
   activeTrackColor: string;
   borderRadius: number;
+  arrowWidth: number;
 }
 
 const createStyles = ({
@@ -293,8 +302,14 @@ const createStyles = ({
   thumbColor,
   activeTrackColor,
   borderRadius,
-}: StyleProps) =>
-  StyleSheet.create({
+  arrowWidth,
+}: StyleProps) => {
+  // Calculate arrow dimensions based on track width and arrowWidth parameter
+  const trackWidth = width - 10; // Track has 10px total padding
+  const maxArrowWidth = trackWidth * Math.max(0.1, Math.min(1.0, arrowWidth)); // Clamp between 0.1 and 1.0
+  const arrowHeadWidth = Math.min(maxArrowWidth * 0.5, 12); // Arrow head proportional to max width, but capped
+  
+  return StyleSheet.create({
     container: {
       width,
       height,
@@ -354,9 +369,9 @@ const createStyles = ({
     arrowHead: {
       width: 0,
       height: 0,
-      borderLeftWidth: 12,
-      borderRightWidth: 12,
-      borderBottomWidth: 20,
+      borderLeftWidth: arrowHeadWidth,
+      borderRightWidth: arrowHeadWidth,
+      borderBottomWidth: arrowHeadWidth * 1.67, // Maintain proportional height
       borderLeftColor: 'transparent',
       borderRightColor: 'transparent',
       borderBottomColor: '#DDD',
@@ -375,12 +390,13 @@ const createStyles = ({
       borderRadius: 2,
     },
     // Segments get progressively narrower toward the top
-    segment1: { width: 4 },   // Narrowest (top)
-    segment2: { width: 8 },
-    segment3: { width: 12 },
-    segment4: { width: 16 },
-    segment5: { width: 20 },
-    segment6: { width: 24 },  // Widest (bottom, matches arrow head base)
+    segment1: { width: Math.max(2, maxArrowWidth * 0.17) },   // Narrowest (top) - 17% of max width
+    segment2: { width: Math.max(3, maxArrowWidth * 0.33) },   // 33% of max width
+    segment3: { width: Math.max(4, maxArrowWidth * 0.50) },   // 50% of max width
+    segment4: { width: Math.max(5, maxArrowWidth * 0.67) },   // 67% of max width
+    segment5: { width: Math.max(6, maxArrowWidth * 0.83) },   // 83% of max width
+    segment6: { width: maxArrowWidth },                       // Widest (bottom) - 100% of max width
   });
+};
 
 export default VerticalAnimatedSlider;

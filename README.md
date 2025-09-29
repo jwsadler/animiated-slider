@@ -170,6 +170,7 @@ const CustomSlider = () => {
 | `hapticFeedback` | `boolean` | `true` | Enable haptic feedback |
 | `activationThreshold` | `number` | `0.8` | Threshold percentage (0-1) at which the slider activates |
 | `springConfig` | `SpringConfig` | `{ damping: 15, stiffness: 150, mass: 1 }` | Spring animation configuration |
+| `arrowWidth` | `number` | `0.8` | Width of background arrow as percentage of track width (0.1-1.0) |
 
 ### VerticalAnimatedSlider (Vertical)
 
@@ -195,6 +196,7 @@ const CustomSlider = () => {
 | `hapticFeedback` | `boolean` | `true` | Enable haptic feedback |
 | `activationThreshold` | `number` | `0.8` | Threshold percentage (0-1) at which the slider activates |
 | `springConfig` | `SpringConfig` | `{ damping: 15, stiffness: 150, mass: 1 }` | Spring animation configuration |
+| `arrowWidth` | `number` | `0.8` | Width of background arrow as percentage of track width (0.1-1.0) |
 
 ### SpringConfig
 
@@ -283,6 +285,7 @@ interface SpringConfig {
   activeTrackColor="#5352ED"
   borderRadius={20}
   activationThreshold={0.7}
+  arrowWidth={0.6} // Arrow uses 60% of track width
   label="GO"
   labelStyle={{ fontSize: 10, color: '#FFFFFF', fontWeight: 'bold' }}
 />
