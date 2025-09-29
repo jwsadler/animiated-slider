@@ -260,7 +260,7 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
         {useGradient ? (
           <Animated.View style={[styles.activeTrackContainer, activeTrackAnimatedStyle]}>
             <LinearGradient
-              colors={['transparent', activeTrackColor]}
+              colors={[activeTrackColor, 'transparent']}
               locations={[0, 1]}
               style={styles.activeTrackGradient}
             />

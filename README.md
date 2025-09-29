@@ -180,8 +180,8 @@ Both horizontal and vertical sliders support a beautiful gradient effect for the
 ```
 
 The gradient creates a smooth visual transition:
-- **Horizontal**: Transparent at left → `activeTrackColor` at right
-- **Vertical**: Transparent at bottom → `activeTrackColor` at top
+- **Horizontal**: `activeTrackColor` at left → Transparent at right
+- **Vertical**: `activeTrackColor` at bottom → Transparent at top
 
 ## Props
 
@@ -207,7 +207,7 @@ The gradient creates a smooth visual transition:
 | `hapticFeedback` | `boolean` | `true` | Enable haptic feedback |
 | `activationThreshold` | `number` | `0.8` | Threshold percentage (0-1) at which the slider activates |
 | `springConfig` | `SpringConfig` | `{ damping: 15, stiffness: 150, mass: 1 }` | Spring animation configuration |
-| `useGradient` | `boolean` | `false` | Enable gradient effect for active track (transparent at left to activeTrackColor at right) |
+| `useGradient` | `boolean` | `false` | Enable gradient effect for active track (activeTrackColor at left to transparent at right) |
 
 ### VerticalAnimatedSlider (Vertical)
 
@@ -234,7 +234,7 @@ The gradient creates a smooth visual transition:
 | `activationThreshold` | `number` | `0.8` | Threshold percentage (0-1) at which the slider activates |
 | `springConfig` | `SpringConfig` | `{ damping: 15, stiffness: 150, mass: 1 }` | Spring animation configuration |
 | `arrowWidth` | `number` | `0.8` | Width of background arrow as percentage of track width (0.1-1.0) |
-| `useGradient` | `boolean` | `false` | Enable gradient effect for active track (transparent at bottom to activeTrackColor at top) |
+| `useGradient` | `boolean` | `false` | Enable gradient effect for active track (activeTrackColor at bottom to transparent at top) |
 
 ### SpringConfig
 

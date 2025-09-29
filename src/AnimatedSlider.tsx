@@ -243,7 +243,7 @@ export const AnimatedSlider: React.FC<AnimatedSliderProps> = ({
         {useGradient ? (
           <Animated.View style={[styles.activeTrackContainer, activeTrackAnimatedStyle]}>
             <LinearGradient
-              colors={['transparent', activeTrackColor]}
+              colors={[activeTrackColor, 'transparent']}
               locations={[0, 1]}
               start={{x: 0, y: 0}}
               end={{x: 1, y: 0}}
