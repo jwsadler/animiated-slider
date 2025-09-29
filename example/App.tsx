@@ -132,7 +132,8 @@ const App: React.FC = () => {
                 disabled={isDisabled}
                 width={50}
                 height={250}
-                thumbSize={40}
+                thumbWidth={40}
+                thumbHeight={24}
                 trackColor="#FFE0E0"
                 thumbColor="#FF6B6B"
                 activeTrackColor="#FF4757"
@@ -150,7 +151,8 @@ const App: React.FC = () => {
                 disabled={isDisabled}
                 width={40}
                 height={200}
-                thumbSize={30}
+                thumbWidth={30}
+                thumbHeight={18}
                 trackColor="#E8F4FD"
                 thumbColor="#3742FA"
                 activeTrackColor="#5352ED"

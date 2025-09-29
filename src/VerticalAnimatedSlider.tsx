@@ -54,10 +54,23 @@ export interface VerticalAnimatedSliderProps {
   height?: number;
 
   /**
-   * Size of the slider thumb
+   * Size of the slider thumb (deprecated - use thumbWidth and thumbHeight)
    * @default 50
+   * @deprecated Use thumbWidth and thumbHeight instead
    */
   thumbSize?: number;
+
+  /**
+   * Width of the slider thumb
+   * @default 50
+   */
+  thumbWidth?: number;
+
+  /**
+   * Height of the slider thumb
+   * @default 30
+   */
+  thumbHeight?: number;
 
   /**
    * Background color of the slider track
@@ -137,6 +150,8 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   width = 60,
   height = 300,
   thumbSize = 50,
+  thumbWidth,
+  thumbHeight,
   trackColor = '#E0E0E0',
   thumbColor = '#FFFFFF',
   activeTrackColor = '#4CAF50',
@@ -152,7 +167,11 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   const translateY = useSharedValue(0);
   const isActivated = useRef(false);
 
-  const maxTranslateY = height - thumbSize - 10; // 10 for padding
+  // Calculate actual thumb dimensions (with fallback to thumbSize for backward compatibility)
+  const actualThumbWidth = thumbWidth ?? thumbSize;
+  const actualThumbHeight = thumbHeight ?? (thumbSize * 0.6);
+
+  const maxTranslateY = height - actualThumbHeight - 10; // 10 for padding
 
   const triggerHapticFeedback = useCallback(() => {
     if (hapticFeedback) {
@@ -201,7 +220,7 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   }));
 
   const activeTrackAnimatedStyle = useAnimatedStyle(() => ({
-    height: translateY.value + thumbSize / 2,
+    height: translateY.value + actualThumbHeight / 2,
   }));
 
   const containerOpacity = disabled ? disabledOpacity : 1;
@@ -209,12 +228,13 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
   const styles = useMemo(() => createStyles({
     width,
     height,
-    thumbSize,
+    thumbWidth: actualThumbWidth,
+    thumbHeight: actualThumbHeight,
     trackColor,
     thumbColor,
     activeTrackColor,
     borderRadius,
-  }), [width, height, thumbSize, trackColor, thumbColor, activeTrackColor, borderRadius]);
+  }), [width, height, actualThumbWidth, actualThumbHeight, trackColor, thumbColor, activeTrackColor, borderRadius]);
 
   return (
     <View style={[styles.container, containerStyle, { opacity: containerOpacity }]}>
@@ -243,7 +263,8 @@ export const VerticalAnimatedSlider: React.FC<VerticalAnimatedSliderProps> = ({
 interface StyleProps {
   width: number;
   height: number;
-  thumbSize: number;
+  thumbWidth: number;
+  thumbHeight: number;
   trackColor: string;
   thumbColor: string;
   activeTrackColor: string;
@@ -253,7 +274,8 @@ interface StyleProps {
 const createStyles = ({
   width,
   height,
-  thumbSize,
+  thumbWidth,
+  thumbHeight,
   trackColor,
   thumbColor,
   activeTrackColor,
@@ -285,8 +307,8 @@ const createStyles = ({
       borderRadius,
     },
     thumb: {
-      width: thumbSize,
-      height: thumbSize * 0.6, // Make it rectangular (shorter height)
+      width: thumbWidth,
+      height: thumbHeight,
       backgroundColor: thumbColor,
       borderRadius: 8, // Small border radius for rectangular shape
       shadowColor: '#000',

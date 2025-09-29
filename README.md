@@ -181,7 +181,9 @@ const CustomSlider = () => {
 | `labelStyle` | `TextStyle` | `undefined` | Style for the label text |
 | `width` | `number` | `60` | Width of the slider container |
 | `height` | `number` | `300` | Height of the slider container |
-| `thumbSize` | `number` | `50` | Size of the slider thumb |
+| `thumbSize` | `number` | `50` | Size of the slider thumb (deprecated - use thumbWidth/thumbHeight) |
+| `thumbWidth` | `number` | `50` | Width of the rectangular thumb |
+| `thumbHeight` | `number` | `30` | Height of the rectangular thumb |
 | `trackColor` | `string` | `'#E0E0E0'` | Background color of the slider track |
 | `thumbColor` | `string` | `'#FFFFFF'` | Background color of the slider thumb |
 | `activeTrackColor` | `string` | `'#4CAF50'` | Color of the active track (filled portion) |
@@ -259,7 +261,8 @@ interface SpringConfig {
   onActivate={handleActivation}
   width={50}
   height={250}
-  thumbSize={40}
+  thumbWidth={40}
+  thumbHeight={24}
   trackColor="#FFE0E0"
   thumbColor="#FF6B6B"
   activeTrackColor="#FF4757"
@@ -273,7 +276,8 @@ interface SpringConfig {
   onActivate={handleActivation}
   width={40}
   height={200}
-  thumbSize={30}
+  thumbWidth={30}
+  thumbHeight={18}
   trackColor="#E8F4FD"
   thumbColor="#3742FA"
   activeTrackColor="#5352ED"
