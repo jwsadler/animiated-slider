@@ -586,6 +586,28 @@ The component supports being completely disabled with visual feedback:
 />
 ```
 
+### Custom Disabled Component
+
+You can show a custom interactive component when the navigation is disabled:
+
+```tsx
+const DisabledScreen = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Text>Navigation is disabled</Text>
+    <TouchableOpacity onPress={() => alert('This button still works!')}>
+      <Text>Interactive Button</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+<BottomTabNavigation
+  tabs={tabs}
+  disabled={true}
+  disabledComponent={DisabledScreen}
+  onTabChange={(tabId) => console.log('Tab changed to:', tabId)}
+/>
+```
+
 ### BottomTabNavigation Props
 
 | Prop | Type | Default | Description |
@@ -606,6 +628,7 @@ The component supports being completely disabled with visual feedback:
 | `disabled` | `boolean` | `false` | Disable the entire component |
 | `disabledColor` | `string` | `#C7C7CC` | Color when disabled |
 | `disabledOpacity` | `number` | `0.6` | Opacity when disabled |
+| `disabledComponent` | `React.ComponentType` | `undefined` | Custom component to show when disabled |
 
 ### TabConfig Interface
 
@@ -623,6 +646,7 @@ The component supports being completely disabled with visual feedback:
 - 🔧 **TypeScript**: Full TypeScript support
 - ♿ **Accessibility**: Proper disabled state handling
 - 🎯 **Visual Feedback**: Icons and labels reflect disabled state
+- 🔄 **Custom Disabled Component**: Show interactive content when disabled
 
 ## Requirements
 

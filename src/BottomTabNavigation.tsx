@@ -35,6 +35,7 @@ export interface BottomTabNavigationProps {
   disabled?: boolean;
   disabledColor?: string;
   disabledOpacity?: number;
+  disabledComponent?: React.ComponentType;
 }
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -56,6 +57,7 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
   disabled = false,
   disabledColor = '#C7C7CC',
   disabledOpacity = 0.6,
+  disabledComponent,
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.id || '');
 
@@ -67,17 +69,24 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
 
   const activeTabConfig = tabs.find(tab => tab.id === activeTab);
   const ActiveComponent = activeTabConfig?.component;
+  const DisabledComponent = disabledComponent;
 
   return (
     <View style={[styles.container, containerStyle]}>
       {/* Content Area */}
       <View style={[styles.content, contentStyle]}>
-        {ActiveComponent && <ActiveComponent />}
-        {disabled && (
-          <View style={[
-            styles.disabledOverlay,
-            { opacity: disabledOpacity }
-          ]} />
+        {disabled && DisabledComponent ? (
+          <DisabledComponent />
+        ) : (
+          <>
+            {ActiveComponent && <ActiveComponent />}
+            {disabled && !DisabledComponent && (
+              <View style={[
+                styles.disabledOverlay,
+                { opacity: disabledOpacity }
+              ]} />
+            )}
+          </>
         )}
       </View>
 

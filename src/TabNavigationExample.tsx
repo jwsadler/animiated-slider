@@ -5,6 +5,22 @@ import BottomTabNavigation, { TabConfig } from './BottomTabNavigation';
 import AuctionScreen from './components/AuctionScreen';
 import PaymentScreen from './components/PaymentScreen';
 
+// Example disabled component that shows when navigation is disabled
+const DisabledScreen: React.FC = () => (
+  <View style={styles.disabledScreen}>
+    <Text style={styles.disabledTitle}>🚫 Navigation Disabled</Text>
+    <Text style={styles.disabledMessage}>
+      The tab navigation is currently disabled, but this component remains interactive!
+    </Text>
+    <TouchableOpacity 
+      style={styles.interactiveButton}
+      onPress={() => Alert.alert('Success!', 'This button works even when navigation is disabled!')}
+    >
+      <Text style={styles.buttonText}>Try Me! 🎯</Text>
+    </TouchableOpacity>
+  </View>
+);
+
 // Example of how to add more tabs in the future
 // You can create additional screen components and add them here
 const TabNavigationExample: React.FC = () => {
@@ -121,6 +137,7 @@ const TabNavigationExample: React.FC = () => {
           disabled={isDisabled}
           disabledColor="#C7C7CC"
           disabledOpacity={0.6}
+          disabledComponent={DisabledScreen}
         />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -149,6 +166,47 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#F8F9FA',
+  },
+  disabledTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FF3B30',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  disabledMessage: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  interactiveButton: {
+    backgroundColor: '#34C759',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 
