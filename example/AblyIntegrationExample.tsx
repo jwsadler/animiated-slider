@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
   Alert,
 } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Ably from 'ably';
 import AnimatedSlider from '../src/AnimatedSlider';
@@ -92,8 +92,9 @@ const AblyIntegrationExample: React.FC = () => {
   };
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={styles.container}>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
         <View style={styles.content}>
           <Text style={styles.title}>Ably + Animated Slider</Text>
           
@@ -149,8 +150,9 @@ const AblyIntegrationExample: React.FC = () => {
             </Text>
           </View>
         </View>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+        </SafeAreaView>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 };
 
