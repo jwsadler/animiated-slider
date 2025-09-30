@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Alert, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Alert, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import BottomTabNavigation, { TabConfig } from './BottomTabNavigation';
 import AuctionScreen from './components/AuctionScreen';
@@ -8,6 +8,8 @@ import PaymentScreen from './components/PaymentScreen';
 // Example of how to add more tabs in the future
 // You can create additional screen components and add them here
 const TabNavigationExample: React.FC = () => {
+  const [isDisabled, setIsDisabled] = useState(false);
+
   // Define your tabs configuration
   const tabs: TabConfig[] = [
     {
@@ -93,6 +95,21 @@ const TabNavigationExample: React.FC = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        {/* Toggle Button for Disabled State */}
+        <View style={styles.toggleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              { backgroundColor: isDisabled ? '#FF3B30' : '#34C759' }
+            ]}
+            onPress={() => setIsDisabled(!isDisabled)}
+          >
+            <Text style={styles.toggleText}>
+              {isDisabled ? '🚫 Navigation Disabled' : '✅ Navigation Enabled'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <BottomTabNavigation
           tabs={enhancedTabs}
           initialTab="auction"
@@ -101,6 +118,9 @@ const TabNavigationExample: React.FC = () => {
           backgroundColor="#FFFFFF"
           tabBarHeight={80}
           onTabChange={handleTabChange}
+          disabled={isDisabled}
+          disabledColor="#C7C7CC"
+          disabledOpacity={0.6}
         />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -111,6 +131,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+  },
+  toggleContainer: {
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E1E1E1',
+  },
+  toggleButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  toggleText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

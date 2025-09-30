@@ -32,6 +32,9 @@ export interface BottomTabNavigationProps {
   iconStyle?: TextStyle;
   contentStyle?: ViewStyle;
   onTabChange?: (tabId: string) => void;
+  disabled?: boolean;
+  disabledColor?: string;
+  disabledOpacity?: number;
 }
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -50,10 +53,14 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
   iconStyle,
   contentStyle,
   onTabChange,
+  disabled = false,
+  disabledColor = '#C7C7CC',
+  disabledOpacity = 0.6,
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.id || '');
 
   const handleTabPress = (tabId: string) => {
+    if (disabled) return;
     setActiveTab(tabId);
     onTabChange?.(tabId);
   };
@@ -66,6 +73,12 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
       {/* Content Area */}
       <View style={[styles.content, contentStyle]}>
         {ActiveComponent && <ActiveComponent />}
+        {disabled && (
+          <View style={[
+            styles.disabledOverlay,
+            { opacity: disabledOpacity }
+          ]} />
+        )}
       </View>
 
       {/* Tab Bar */}
@@ -76,20 +89,26 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
       ]}>
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;
-          const color = isActive ? activeColor : inactiveColor;
+          const color = disabled ? disabledColor : (isActive ? activeColor : inactiveColor);
 
           return (
             <TouchableOpacity
               key={tab.id}
-              style={[styles.tab, tabStyle]}
+              style={[
+                styles.tab, 
+                tabStyle,
+                disabled && { opacity: disabledOpacity }
+              ]}
               onPress={() => handleTabPress(tab.id)}
-              activeOpacity={0.7}
+              activeOpacity={disabled ? 1 : 0.7}
+              disabled={disabled}
             >
               {/* Icon */}
               <Text style={[
                 styles.icon,
                 { color },
-                iconStyle
+                iconStyle,
+                disabled && { opacity: disabledOpacity }
               ]}>
                 {tab.icon}
               </Text>
@@ -98,7 +117,8 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
               <Text style={[
                 styles.label,
                 { color },
-                labelStyle
+                labelStyle,
+                disabled && { opacity: disabledOpacity }
               ]}>
                 {tab.label}
               </Text>
@@ -148,6 +168,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     textAlign: 'center',
+  },
+  disabledOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#F5F5F5',
+    zIndex: 1000,
   },
 });
 

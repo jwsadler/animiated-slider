@@ -531,6 +531,99 @@ Returns an object with the following methods:
 | `showWarning` | `(message: string, options?) => string` | Show warning notification |
 | `showInfo` | `(message: string, options?) => string` | Show info notification |
 
+## BottomTabNavigation Component
+
+A customizable bottom tab navigation component with support for disabled states and visual feedback.
+
+### Basic Usage
+
+```tsx
+import React from 'react';
+import { BottomTabNavigation, TabConfig } from 'react-native-animated-slider';
+import AuctionScreen from './screens/AuctionScreen';
+import PaymentScreen from './screens/PaymentScreen';
+
+const App = () => {
+  const tabs: TabConfig[] = [
+    {
+      id: 'auction',
+      label: 'Auctions',
+      icon: '🔨',
+      component: AuctionScreen,
+    },
+    {
+      id: 'payment',
+      label: 'Payment',
+      icon: '💳',
+      component: PaymentScreen,
+    },
+  ];
+
+  return (
+    <BottomTabNavigation
+      tabs={tabs}
+      initialTab="auction"
+      activeColor="#007AFF"
+      inactiveColor="#8E8E93"
+      backgroundColor="#FFFFFF"
+      onTabChange={(tabId) => console.log('Tab changed to:', tabId)}
+    />
+  );
+};
+```
+
+### Disabled State
+
+The component supports being completely disabled with visual feedback:
+
+```tsx
+<BottomTabNavigation
+  tabs={tabs}
+  disabled={true}
+  disabledColor="#C7C7CC"
+  disabledOpacity={0.6}
+  onTabChange={(tabId) => console.log('Tab changed to:', tabId)}
+/>
+```
+
+### BottomTabNavigation Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `tabs` | `TabConfig[]` | **Required** | Array of tab configurations |
+| `initialTab` | `string` | First tab ID | Initial active tab |
+| `activeColor` | `string` | `#007AFF` | Color for active tab |
+| `inactiveColor` | `string` | `#8E8E93` | Color for inactive tabs |
+| `backgroundColor` | `string` | `#FFFFFF` | Tab bar background color |
+| `tabBarHeight` | `number` | `80` | Height of the tab bar |
+| `containerStyle` | `ViewStyle` | `undefined` | Custom container styling |
+| `tabBarStyle` | `ViewStyle` | `undefined` | Custom tab bar styling |
+| `tabStyle` | `ViewStyle` | `undefined` | Custom individual tab styling |
+| `labelStyle` | `TextStyle` | `undefined` | Custom label text styling |
+| `iconStyle` | `TextStyle` | `undefined` | Custom icon text styling |
+| `contentStyle` | `ViewStyle` | `undefined` | Custom content area styling |
+| `onTabChange` | `(tabId: string) => void` | `undefined` | Callback when tab changes |
+| `disabled` | `boolean` | `false` | Disable the entire component |
+| `disabledColor` | `string` | `#C7C7CC` | Color when disabled |
+| `disabledOpacity` | `number` | `0.6` | Opacity when disabled |
+
+### TabConfig Interface
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `string` | Unique identifier for the tab |
+| `label` | `string` | Display label for the tab |
+| `icon` | `string` | Icon (emoji or text) for the tab |
+| `component` | `React.ComponentType` | Component to render when tab is active |
+
+**Key Features:**
+- 🚫 **Disabled State**: Complete component disable with visual feedback
+- 🎨 **Customizable**: Full control over colors, styles, and appearance
+- 📱 **Cross-Platform**: Works on both iOS and Android
+- 🔧 **TypeScript**: Full TypeScript support
+- ♿ **Accessibility**: Proper disabled state handling
+- 🎯 **Visual Feedback**: Icons and labels reflect disabled state
+
 ## Requirements
 
 - React Native >= 0.60.0
