@@ -24,7 +24,7 @@ npm install react-native-animated-slider
 This component requires the following peer dependencies:
 
 ```bash
-npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback react-native-linear-gradient ably
+npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback react-native-linear-gradient react-native-safe-area-context ably
 ```
 
 **Note**: `react-native-linear-gradient` is only required if you plan to use the gradient effect (`useGradient={true}`).
@@ -43,6 +43,7 @@ For Android, make sure to follow the setup instructions for:
 - [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/installation)
 - [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation)
 - [React Native Haptic Feedback](https://github.com/mkuczera/react-native-haptic-feedback)
+- [React Native Safe Area Context](https://github.com/th3rdwave/react-native-safe-area-context)
 - [Ably React Native SDK](https://ably.com/docs/getting-started/setup)
 
 ## Basic Usage
@@ -373,6 +374,7 @@ const handleSliderActivation = () => {
 - react-native-reanimated >= 2.0.0
 - react-native-gesture-handler >= 2.8.0 (uses modern Gesture API)
 - react-native-haptic-feedback >= 1.0.0
+- react-native-safe-area-context >= 4.0.0
 - ably >= 2.12.0 (optional, for real-time features)
 
 ## Contributing

@@ -1,5 +1,6 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Alert } from 'react-native';
+import { StyleSheet, Alert, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import BottomTabNavigation, { TabConfig } from './BottomTabNavigation';
 import AuctionScreen from './components/AuctionScreen';
 import PaymentScreen from './components/PaymentScreen';
@@ -90,17 +91,19 @@ const TabNavigationExample: React.FC = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <BottomTabNavigation
-        tabs={enhancedTabs}
-        initialTab="auction"
-        activeColor="#007AFF"
-        inactiveColor="#8E8E93"
-        backgroundColor="#FFFFFF"
-        tabBarHeight={80}
-        onTabChange={handleTabChange}
-      />
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <BottomTabNavigation
+          tabs={enhancedTabs}
+          initialTab="auction"
+          activeColor="#007AFF"
+          inactiveColor="#8E8E93"
+          backgroundColor="#FFFFFF"
+          tabBarHeight={80}
+          onTabChange={handleTabChange}
+        />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
