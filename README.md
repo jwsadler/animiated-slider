@@ -24,7 +24,7 @@ npm install react-native-animated-slider
 This component requires the following peer dependencies:
 
 ```bash
-npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback react-native-linear-gradient react-native-safe-area-context ably
+npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback react-native-linear-gradient react-native-safe-area-context @stripe/stripe-react-native ably
 ```
 
 **Note**: `react-native-linear-gradient` is only required if you plan to use the gradient effect (`useGradient={true}`).
@@ -44,6 +44,7 @@ For Android, make sure to follow the setup instructions for:
 - [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation)
 - [React Native Haptic Feedback](https://github.com/mkuczera/react-native-haptic-feedback)
 - [React Native Safe Area Context](https://github.com/th3rdwave/react-native-safe-area-context)
+- [Stripe React Native](https://github.com/stripe/stripe-react-native) (for payment integration)
 - [Ably React Native SDK](https://ably.com/docs/getting-started/setup)
 
 ## Basic Usage
@@ -183,6 +184,125 @@ Both horizontal and vertical sliders support a beautiful gradient effect for the
 The gradient creates a smooth visual transition:
 - **Horizontal**: `activeTrackColor` at left → Transparent at right
 - **Vertical**: `activeTrackColor` at bottom → Transparent at top
+
+## PaymentScreen Component
+
+The library also includes a comprehensive PaymentScreen component with Stripe integration:
+
+```tsx
+import React from 'react';
+import { PaymentScreen, StripeConfig } from 'react-native-animated-slider';
+
+const stripeConfig: StripeConfig = {
+  publishableKey: 'pk_test_your_publishable_key_here',
+  merchantIdentifier: 'merchant.com.yourapp', // Optional: for Apple Pay
+};
+
+const handleStripePayment = async (amount: number) => {
+  const response = await fetch('https://your-backend.com/create-payment-intent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount: amount * 100 }), // Convert to cents
+  });
+  
+  const { client_secret } = await response.json();
+  return { clientSecret: client_secret };
+};
+
+const App = () => (
+  <PaymentScreen
+    stripeConfig={stripeConfig}
+    onStripePayment={handleStripePayment}
+    onPaymentPress={(method, amount) => {
+      console.log('Payment:', method, amount);
+    }}
+    onAddPaymentMethod={() => {
+      console.log('Add payment method');
+    }}
+  />
+);
+```
+
+### Stripe Setup
+
+For detailed Stripe integration setup, see [STRIPE_SETUP.md](./STRIPE_SETUP.md).
+
+**Key Features:**
+- 💳 **Multiple Payment Methods**: Cards, PayPal, Apple Pay, Google Pay, Stripe
+- 🔒 **Secure**: PCI-compliant Stripe integration
+- 📱 **Native UI**: Beautiful, responsive payment interface
+- ✅ **Real-time Validation**: Card validation and error handling
+- 🎯 **Test Mode**: Built-in test card support
+
+## TopNotification Component
+
+A flexible notification component that displays temporary messages at the top of the screen:
+
+```tsx
+import React, { useState } from 'react';
+import { TopNotification } from 'react-native-animated-slider';
+
+const App = () => {
+  const [showNotification, setShowNotification] = useState(false);
+
+  return (
+    <>
+      <TopNotification
+        visible={showNotification}
+        message="Payment completed successfully!"
+        type="success"
+        duration={3000}
+        onDismiss={() => setShowNotification(false)}
+      />
+      
+      <TouchableOpacity onPress={() => setShowNotification(true)}>
+        <Text>Show Notification</Text>
+      </TouchableOpacity>
+    </>
+  );
+};
+```
+
+### Advanced Notification Management
+
+For multiple notifications, use the notification hook and container:
+
+```tsx
+import React from 'react';
+import { NotificationContainer, useNotification } from 'react-native-animated-slider';
+
+const App = () => {
+  const { notifications, hide, remove, showSuccess, showError } = useNotification();
+
+  return (
+    <>
+      <NotificationContainer
+        notifications={notifications}
+        onDismiss={hide}
+        onRemove={remove}
+        maxNotifications={3}
+      />
+      
+      <TouchableOpacity onPress={() => showSuccess('Success message!')}>
+        <Text>Show Success</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity onPress={() => showError('Error message!')}>
+        <Text>Show Error</Text>
+      </TouchableOpacity>
+    </>
+  );
+};
+```
+
+**Key Features:**
+- 📱 **Top Screen Display**: Slides down from the top with smooth animations
+- ⏱️ **Configurable Duration**: Auto-dismiss after specified time or manual dismiss
+- 🎨 **Multiple Types**: Success, error, warning, info with default styling
+- 🔧 **Customizable**: Custom icons, colors, and styling options
+- 📚 **Multiple Notifications**: Stack multiple notifications with management
+- ♿ **Accessibility**: Safe area and status bar aware positioning
+- 🚫 **Dismissible Control**: Optional close button and tap-to-dismiss
 
 ## Props
 
@@ -366,6 +486,50 @@ const handleSliderActivation = () => {
   });
 };
 ```
+
+### TopNotification
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `visible` | `boolean` | **Required** | Whether the notification is visible |
+| `message` | `string` | **Required** | The message to display |
+| `type` | `'success' \| 'error' \| 'warning' \| 'info'` | `'info'` | Type of notification (affects default styling) |
+| `icon` | `string` | Auto | Custom icon to display (emoji or text) |
+| `duration` | `number` | `4000` | Duration in milliseconds before auto-dismiss (0 = no auto-dismiss) |
+| `dismissible` | `boolean` | `true` | Whether the notification can be manually dismissed |
+| `onDismiss` | `() => void` | `undefined` | Callback when notification is dismissed |
+| `customStyle` | `Partial<NotificationStyle>` | `{}` | Custom styling overrides |
+| `animationDuration` | `number` | `300` | Animation duration in milliseconds |
+| `showCloseButton` | `boolean` | `true` | Whether to show a close button |
+| `closeButtonText` | `string` | `'✕'` | Custom close button text/icon |
+
+### NotificationContainer
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `notifications` | `NotificationState[]` | **Required** | Array of notifications to display |
+| `onDismiss` | `(id: string) => void` | **Required** | Callback when a notification is dismissed |
+| `onRemove` | `(id: string) => void` | **Required** | Callback when a notification should be removed |
+| `globalCustomStyle` | `Partial<NotificationStyle>` | `undefined` | Global custom styling overrides |
+| `globalAnimationDuration` | `number` | `undefined` | Global animation duration in milliseconds |
+| `maxNotifications` | `number` | `3` | Maximum number of notifications to show simultaneously |
+| `notificationSpacing` | `number` | `8` | Spacing between multiple notifications |
+
+### useNotification Hook
+
+Returns an object with the following methods:
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `notifications` | `NotificationState[]` | Current array of notifications |
+| `show` | `(config: NotificationConfig) => string` | Show a notification, returns notification ID |
+| `hide` | `(id: string) => void` | Hide a specific notification |
+| `remove` | `(id: string) => void` | Remove a specific notification |
+| `clear` | `() => void` | Clear all notifications |
+| `showSuccess` | `(message: string, options?) => string` | Show success notification |
+| `showError` | `(message: string, options?) => string` | Show error notification |
+| `showWarning` | `(message: string, options?) => string` | Show warning notification |
+| `showInfo` | `(message: string, options?) => string` | Show info notification |
 
 ## Requirements
 
