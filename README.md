@@ -24,7 +24,7 @@ npm install react-native-animated-slider
 This component requires the following peer dependencies:
 
 ```bash
-npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback react-native-linear-gradient react-native-safe-area-context ably
+npm install react-native-reanimated react-native-gesture-handler react-native-haptic-feedback react-native-linear-gradient react-native-safe-area-context @stripe/stripe-react-native ably
 ```
 
 **Note**: `react-native-linear-gradient` is only required if you plan to use the gradient effect (`useGradient={true}`).
@@ -44,6 +44,7 @@ For Android, make sure to follow the setup instructions for:
 - [React Native Gesture Handler](https://docs.swmansion.com/react-native-gesture-handler/docs/installation)
 - [React Native Haptic Feedback](https://github.com/mkuczera/react-native-haptic-feedback)
 - [React Native Safe Area Context](https://github.com/th3rdwave/react-native-safe-area-context)
+- [Stripe React Native](https://github.com/stripe/stripe-react-native) (for payment integration)
 - [Ably React Native SDK](https://ably.com/docs/getting-started/setup)
 
 ## Basic Usage
@@ -183,6 +184,55 @@ Both horizontal and vertical sliders support a beautiful gradient effect for the
 The gradient creates a smooth visual transition:
 - **Horizontal**: `activeTrackColor` at left → Transparent at right
 - **Vertical**: `activeTrackColor` at bottom → Transparent at top
+
+## PaymentScreen Component
+
+The library also includes a comprehensive PaymentScreen component with Stripe integration:
+
+```tsx
+import React from 'react';
+import { PaymentScreen, StripeConfig } from 'react-native-animated-slider';
+
+const stripeConfig: StripeConfig = {
+  publishableKey: 'pk_test_your_publishable_key_here',
+  merchantIdentifier: 'merchant.com.yourapp', // Optional: for Apple Pay
+};
+
+const handleStripePayment = async (amount: number) => {
+  const response = await fetch('https://your-backend.com/create-payment-intent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ amount: amount * 100 }), // Convert to cents
+  });
+  
+  const { client_secret } = await response.json();
+  return { clientSecret: client_secret };
+};
+
+const App = () => (
+  <PaymentScreen
+    stripeConfig={stripeConfig}
+    onStripePayment={handleStripePayment}
+    onPaymentPress={(method, amount) => {
+      console.log('Payment:', method, amount);
+    }}
+    onAddPaymentMethod={() => {
+      console.log('Add payment method');
+    }}
+  />
+);
+```
+
+### Stripe Setup
+
+For detailed Stripe integration setup, see [STRIPE_SETUP.md](./STRIPE_SETUP.md).
+
+**Key Features:**
+- 💳 **Multiple Payment Methods**: Cards, PayPal, Apple Pay, Google Pay, Stripe
+- 🔒 **Secure**: PCI-compliant Stripe integration
+- 📱 **Native UI**: Beautiful, responsive payment interface
+- ✅ **Real-time Validation**: Card validation and error handling
+- 🎯 **Test Mode**: Built-in test card support
 
 ## Props
 

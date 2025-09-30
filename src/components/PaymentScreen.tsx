@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,19 +7,36 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
+import {
+  StripeProvider,
+  CardField,
+  useStripe,
+  useConfirmPayment,
+  PaymentSheet,
+  usePaymentSheet,
+} from '@stripe/stripe-react-native';
 
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'paypal' | 'apple_pay' | 'google_pay';
+  type: 'card' | 'paypal' | 'apple_pay' | 'google_pay' | 'stripe_card';
   label: string;
   icon: string;
   lastFour?: string;
 }
 
+export interface StripeConfig {
+  publishableKey: string;
+  merchantIdentifier?: string;
+  urlScheme?: string;
+}
+
 export interface PaymentScreenProps {
   onPaymentPress?: (method: PaymentMethod, amount: number) => void;
   onAddPaymentMethod?: () => void;
+  onStripePayment?: (amount: number) => Promise<{ clientSecret: string }>;
+  stripeConfig?: StripeConfig;
 }
 
 // Sample payment methods
@@ -50,14 +67,96 @@ const samplePaymentMethods: PaymentMethod[] = [
     label: 'Apple Pay',
     icon: '🍎',
   },
+  {
+    id: '5',
+    type: 'stripe_card',
+    label: 'New Card (Stripe)',
+    icon: '💳',
+  },
 ];
+
+// Internal Stripe Payment Component
+const StripePaymentComponent: React.FC<{
+  amount: number;
+  onSuccess: (paymentIntentId: string) => void;
+  onError: (error: string) => void;
+  onStripePayment?: (amount: number) => Promise<{ clientSecret: string }>;
+}> = ({ amount, onSuccess, onError, onStripePayment }) => {
+  const { confirmPayment } = useConfirmPayment();
+  const [loading, setLoading] = useState(false);
+  const [cardComplete, setCardComplete] = useState(false);
+
+  const handlePayment = async () => {
+    if (!cardComplete) {
+      onError('Please complete your card information');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Get client secret from your backend
+      const { clientSecret } = await onStripePayment?.(amount) || { clientSecret: '' };
+      
+      if (!clientSecret) {
+        throw new Error('Failed to create payment intent');
+      }
+
+      const { error, paymentIntent } = await confirmPayment(clientSecret, {
+        paymentMethodType: 'Card',
+      });
+
+      if (error) {
+        onError(error.message);
+      } else if (paymentIntent) {
+        onSuccess(paymentIntent.id);
+      }
+    } catch (err) {
+      onError(err instanceof Error ? err.message : 'Payment failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <View style={styles.stripeContainer}>
+      <Text style={styles.stripeLabel}>Card Information</Text>
+      <CardField
+        postalCodeEnabled={true}
+        placeholders={{
+          number: '4242 4242 4242 4242',
+        }}
+        cardStyle={styles.cardField}
+        style={styles.cardFieldContainer}
+        onCardChange={(cardDetails) => {
+          setCardComplete(cardDetails.complete);
+        }}
+      />
+      <TouchableOpacity
+        style={[styles.stripePayButton, loading && styles.stripePayButtonDisabled]}
+        onPress={handlePayment}
+        disabled={loading || !cardComplete}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.stripePayButtonText}>
+            Pay ${amount.toFixed(2)}
+          </Text>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 export const PaymentScreen: React.FC<PaymentScreenProps> = ({
   onPaymentPress,
   onAddPaymentMethod,
+  onStripePayment,
+  stripeConfig,
 }) => {
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
+  const [showStripePayment, setShowStripePayment] = useState(false);
 
   const handlePaymentPress = () => {
     const selectedPaymentMethod = samplePaymentMethods.find(
@@ -76,13 +175,36 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
       return;
     }
 
+    // Handle Stripe payment differently
+    if (selectedPaymentMethod.type === 'stripe_card') {
+      if (!stripeConfig?.publishableKey) {
+        Alert.alert('Error', 'Stripe is not configured');
+        return;
+      }
+      setShowStripePayment(true);
+      return;
+    }
+
     onPaymentPress?.(selectedPaymentMethod, paymentAmount);
     
-    // Default behavior
+    // Default behavior for non-Stripe payments
     Alert.alert(
       'Payment Initiated',
       `Processing $${paymentAmount.toFixed(2)} via ${selectedPaymentMethod.label}`
     );
+  };
+
+  const handleStripeSuccess = (paymentIntentId: string) => {
+    setShowStripePayment(false);
+    Alert.alert(
+      'Payment Successful!',
+      `Payment completed successfully.\nPayment ID: ${paymentIntentId}`,
+      [{ text: 'OK', onPress: () => setAmount('') }]
+    );
+  };
+
+  const handleStripeError = (error: string) => {
+    Alert.alert('Payment Failed', error);
   };
 
   const handleAddPaymentMethod = () => {
@@ -91,7 +213,7 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
     Alert.alert('Add Payment Method', 'This would open the add payment method flow');
   };
 
-  return (
+  const renderContent = () => (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Payment</Text>
@@ -146,6 +268,11 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
                       Tap to pay • Secure
                     </Text>
                   )}
+                  {method.type === 'stripe_card' && (
+                    <Text style={styles.paymentMethodSubtext}>
+                      Secure Stripe payment • Real-time processing
+                    </Text>
+                  )}
                 </View>
               </View>
               
@@ -157,6 +284,24 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Stripe Payment Form */}
+        {showStripePayment && (
+          <View style={styles.section}>
+            <StripePaymentComponent
+              amount={parseFloat(amount)}
+              onSuccess={handleStripeSuccess}
+              onError={handleStripeError}
+              onStripePayment={onStripePayment}
+            />
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowStripePayment(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Recent Transactions */}
         <View style={styles.section}>
@@ -190,24 +335,41 @@ export const PaymentScreen: React.FC<PaymentScreenProps> = ({
         </View>
       </ScrollView>
 
-      {/* Pay Button */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[
-            styles.payButton,
-            (!selectedMethod || !amount) && styles.payButtonDisabled,
-          ]}
-          onPress={handlePaymentPress}
-          disabled={!selectedMethod || !amount}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.payButtonText}>
-            {amount ? `Pay $${parseFloat(amount || '0').toFixed(2)}` : 'Enter Amount'}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* Pay Button - Hidden when showing Stripe form */}
+      {!showStripePayment && (
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[
+              styles.payButton,
+              (!selectedMethod || !amount) && styles.payButtonDisabled,
+            ]}
+            onPress={handlePaymentPress}
+            disabled={!selectedMethod || !amount}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.payButtonText}>
+              {amount ? `Pay $${parseFloat(amount || '0').toFixed(2)}` : 'Enter Amount'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
+
+  // Wrap with StripeProvider if Stripe config is provided
+  if (stripeConfig?.publishableKey) {
+    return (
+      <StripeProvider
+        publishableKey={stripeConfig.publishableKey}
+        merchantIdentifier={stripeConfig.merchantIdentifier}
+        urlScheme={stripeConfig.urlScheme}
+      >
+        {renderContent()}
+      </StripeProvider>
+    );
+  }
+
+  return renderContent();
 };
 
 const styles = StyleSheet.create({
@@ -399,6 +561,59 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  // Stripe-specific styles
+  stripeContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  stripeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1A1A1A',
+    marginBottom: 12,
+  },
+  cardFieldContainer: {
+    height: 50,
+    marginBottom: 16,
+  },
+  cardField: {
+    backgroundColor: '#F9FAFB',
+    borderColor: '#D1D5DB',
+    borderWidth: 1,
+    borderRadius: 8,
+    fontSize: 16,
+    placeholderColor: '#9CA3AF',
+  },
+  stripePayButton: {
+    backgroundColor: '#6366F1',
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+  stripePayButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  stripePayButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  cancelButton: {
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  cancelButtonText: {
+    color: '#6B7280',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 
