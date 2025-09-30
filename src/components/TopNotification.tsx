@@ -95,7 +95,7 @@ export const TopNotification: React.FC<TopNotificationProps> = ({
   const [isVisible, setIsVisible] = useState(visible);
   const slideAnim = useRef(new Animated.Value(-100)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const insets = useSafeAreaInsets();
 
   const notificationStyle = { ...defaultStyles[type], ...customStyle };
