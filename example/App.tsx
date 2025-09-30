@@ -11,7 +11,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AnimatedSlider from '../src/AnimatedSlider';
 import VerticalAnimatedSlider from '../src/VerticalAnimatedSlider';
 
+// To see the Tab Navigation demo, uncomment the line below and comment out the current App component
+// import TabNavigationDemo from './TabNavigationDemo';
+
 const App: React.FC = () => {
+  // To use Tab Navigation demo instead, replace this component with:
+  // return <TabNavigationDemo />;
   const [isDisabled, setIsDisabled] = useState(false);
   const [activationCount, setActivationCount] = useState(0);
 
