@@ -234,6 +234,76 @@ For detailed Stripe integration setup, see [STRIPE_SETUP.md](./STRIPE_SETUP.md).
 - ✅ **Real-time Validation**: Card validation and error handling
 - 🎯 **Test Mode**: Built-in test card support
 
+## TopNotification Component
+
+A flexible notification component that displays temporary messages at the top of the screen:
+
+```tsx
+import React, { useState } from 'react';
+import { TopNotification } from 'react-native-animated-slider';
+
+const App = () => {
+  const [showNotification, setShowNotification] = useState(false);
+
+  return (
+    <>
+      <TopNotification
+        visible={showNotification}
+        message="Payment completed successfully!"
+        type="success"
+        duration={3000}
+        onDismiss={() => setShowNotification(false)}
+      />
+      
+      <TouchableOpacity onPress={() => setShowNotification(true)}>
+        <Text>Show Notification</Text>
+      </TouchableOpacity>
+    </>
+  );
+};
+```
+
+### Advanced Notification Management
+
+For multiple notifications, use the notification hook and container:
+
+```tsx
+import React from 'react';
+import { NotificationContainer, useNotification } from 'react-native-animated-slider';
+
+const App = () => {
+  const { notifications, hide, remove, showSuccess, showError } = useNotification();
+
+  return (
+    <>
+      <NotificationContainer
+        notifications={notifications}
+        onDismiss={hide}
+        onRemove={remove}
+        maxNotifications={3}
+      />
+      
+      <TouchableOpacity onPress={() => showSuccess('Success message!')}>
+        <Text>Show Success</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity onPress={() => showError('Error message!')}>
+        <Text>Show Error</Text>
+      </TouchableOpacity>
+    </>
+  );
+};
+```
+
+**Key Features:**
+- 📱 **Top Screen Display**: Slides down from the top with smooth animations
+- ⏱️ **Configurable Duration**: Auto-dismiss after specified time or manual dismiss
+- 🎨 **Multiple Types**: Success, error, warning, info with default styling
+- 🔧 **Customizable**: Custom icons, colors, and styling options
+- 📚 **Multiple Notifications**: Stack multiple notifications with management
+- ♿ **Accessibility**: Safe area and status bar aware positioning
+- 🚫 **Dismissible Control**: Optional close button and tap-to-dismiss
+
 ## Props
 
 ### AnimatedSlider (Horizontal)
@@ -416,6 +486,50 @@ const handleSliderActivation = () => {
   });
 };
 ```
+
+### TopNotification
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `visible` | `boolean` | **Required** | Whether the notification is visible |
+| `message` | `string` | **Required** | The message to display |
+| `type` | `'success' \| 'error' \| 'warning' \| 'info'` | `'info'` | Type of notification (affects default styling) |
+| `icon` | `string` | Auto | Custom icon to display (emoji or text) |
+| `duration` | `number` | `4000` | Duration in milliseconds before auto-dismiss (0 = no auto-dismiss) |
+| `dismissible` | `boolean` | `true` | Whether the notification can be manually dismissed |
+| `onDismiss` | `() => void` | `undefined` | Callback when notification is dismissed |
+| `customStyle` | `Partial<NotificationStyle>` | `{}` | Custom styling overrides |
+| `animationDuration` | `number` | `300` | Animation duration in milliseconds |
+| `showCloseButton` | `boolean` | `true` | Whether to show a close button |
+| `closeButtonText` | `string` | `'✕'` | Custom close button text/icon |
+
+### NotificationContainer
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `notifications` | `NotificationState[]` | **Required** | Array of notifications to display |
+| `onDismiss` | `(id: string) => void` | **Required** | Callback when a notification is dismissed |
+| `onRemove` | `(id: string) => void` | **Required** | Callback when a notification should be removed |
+| `globalCustomStyle` | `Partial<NotificationStyle>` | `undefined` | Global custom styling overrides |
+| `globalAnimationDuration` | `number` | `undefined` | Global animation duration in milliseconds |
+| `maxNotifications` | `number` | `3` | Maximum number of notifications to show simultaneously |
+| `notificationSpacing` | `number` | `8` | Spacing between multiple notifications |
+
+### useNotification Hook
+
+Returns an object with the following methods:
+
+| Method | Type | Description |
+|--------|------|-------------|
+| `notifications` | `NotificationState[]` | Current array of notifications |
+| `show` | `(config: NotificationConfig) => string` | Show a notification, returns notification ID |
+| `hide` | `(id: string) => void` | Hide a specific notification |
+| `remove` | `(id: string) => void` | Remove a specific notification |
+| `clear` | `() => void` | Clear all notifications |
+| `showSuccess` | `(message: string, options?) => string` | Show success notification |
+| `showError` | `(message: string, options?) => string` | Show error notification |
+| `showWarning` | `(message: string, options?) => string` | Show warning notification |
+| `showInfo` | `(message: string, options?) => string` | Show info notification |
 
 ## Requirements
 
