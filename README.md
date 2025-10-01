@@ -648,6 +648,145 @@ const DisabledScreen = () => (
 - 🎯 **Visual Feedback**: Icons and labels reflect disabled state
 - 🔄 **Custom Disabled Component**: Show interactive content when disabled
 
+## AppStateDetector Component
+
+A comprehensive React component for detecting app state changes and screen navigation events.
+
+### Features
+
+- 📱 **App State Detection**: Monitor active, background, inactive, opened, and closed states
+- 🧭 **Screen Change Detection**: Track navigation between screens/tabs
+- 🎯 **Event Callbacks**: Individual callbacks for each state change
+- 📊 **Context Provider**: Access current states from any child component
+- 🔧 **TypeScript Support**: Full type definitions for all events and states
+- 📝 **Logging**: Optional console logging for debugging
+
+### Basic Usage
+
+```tsx
+import React from 'react';
+import { AppStateDetector } from 'react-native-animated-slider';
+
+const App = () => {
+  return (
+    <AppStateDetector
+      enableLogging={true}
+      onAppOpened={() => console.log('App opened!')}
+      onAppClosed={() => console.log('App closed!')}
+      onAppBackground={() => console.log('App in background')}
+      onAppActive={() => console.log('App active')}
+      onScreenChange={(event) => {
+        console.log(`Screen changed: ${event.previousScreen} → ${event.currentScreen}`);
+      }}
+    >
+      <YourAppContent />
+    </AppStateDetector>
+  );
+};
+```
+
+### Using Hooks
+
+```tsx
+import React from 'react';
+import { useAppStateDetector, useScreenChangeDetector } from 'react-native-animated-slider';
+
+const MyComponent = () => {
+  const { currentState } = useAppStateDetector((event) => {
+    console.log('App state changed:', event);
+  });
+
+  const { notifyScreenChange } = useScreenChangeDetector((event) => {
+    console.log('Screen changed:', event);
+  });
+
+  const handleNavigate = (screenName: string) => {
+    // Your navigation logic
+    notifyScreenChange(screenName);
+  };
+
+  return (
+    <View>
+      <Text>Current app state: {currentState}</Text>
+      <Button title="Go to Profile" onPress={() => handleNavigate('profile')} />
+    </View>
+  );
+};
+```
+
+### Using Context
+
+```tsx
+import React from 'react';
+import { useAppStateDetectorContext } from 'react-native-animated-slider';
+
+const StatusDisplay = () => {
+  const { 
+    currentAppState, 
+    previousAppState, 
+    currentScreen, 
+    notifyScreenChange 
+  } = useAppStateDetectorContext();
+
+  return (
+    <View>
+      <Text>App State: {currentAppState}</Text>
+      <Text>Current Screen: {currentScreen}</Text>
+    </View>
+  );
+};
+```
+
+### AppStateDetector Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onAppStateChange` | `(event: AppStateChangeEvent) => void` | `undefined` | General app state change callback |
+| `onScreenChange` | `(event: ScreenChangeEvent) => void` | `undefined` | Screen navigation change callback |
+| `onAppOpened` | `() => void` | `undefined` | Called when app is opened |
+| `onAppClosed` | `() => void` | `undefined` | Called when app is closed |
+| `onAppBackground` | `() => void` | `undefined` | Called when app goes to background |
+| `onAppInactive` | `() => void` | `undefined` | Called when app becomes inactive |
+| `onAppActive` | `() => void` | `undefined` | Called when app becomes active |
+| `enableLogging` | `boolean` | `false` | Enable console logging for debugging |
+| `children` | `React.ReactNode` | `undefined` | Child components |
+
+### Event Interfaces
+
+```tsx
+interface AppStateChangeEvent {
+  previousState: ExtendedAppState;
+  currentState: ExtendedAppState;
+  timestamp: number;
+}
+
+interface ScreenChangeEvent {
+  previousScreen?: string;
+  currentScreen: string;
+  timestamp: number;
+}
+
+type ExtendedAppState = 'active' | 'background' | 'inactive' | 'unknown' | 'closed' | 'opened';
+```
+
+### Integration with BottomTabNavigation
+
+The `BottomTabNavigation` component automatically integrates with `AppStateDetector` when wrapped:
+
+```tsx
+<AppStateDetector onScreenChange={(event) => console.log('Tab changed:', event)}>
+  <BottomTabNavigation tabs={tabs} />
+</AppStateDetector>
+```
+
+**Key Features:**
+- 🔄 **Automatic Detection**: App state changes detected via React Native's AppState API
+- 🎯 **Screen Tracking**: Manual screen change notifications via `notifyScreenChange`
+- 📱 **Cross-Platform**: Works on both iOS and Android
+- 🔧 **TypeScript**: Full TypeScript support with comprehensive interfaces
+- 🎪 **Context Provider**: Access state from any child component
+- 📊 **Event Logging**: Optional logging for debugging and analytics
+
 ## Requirements
 
 - React Native >= 0.60.0
