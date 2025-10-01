@@ -50,7 +50,13 @@ const ScreenNavigationExample: React.FC = () => {
   const { notifyScreenChange } = useAppStateDetectorContext();
   const [currentTab, setCurrentTab] = useState('home');
 
+  // Notify initial screen on mount
+  React.useEffect(() => {
+    notifyScreenChange('home');
+  }, [notifyScreenChange]);
+
   const handleTabPress = (tabName: string) => {
+    console.log(`[ScreenNavigationExample] Switching to tab: ${tabName}`);
     setCurrentTab(tabName);
     notifyScreenChange(tabName);
   };
@@ -94,34 +100,18 @@ const ScreenNavigationExample: React.FC = () => {
   );
 };
 
-// Event log component
-const EventLog: React.FC = () => {
-  const [events, setEvents] = useState<string[]>([]);
+// Event log display component
+interface EventLogDisplayProps {
+  events: string[];
+  onClear: () => void;
+}
 
-  const addEvent = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setEvents(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 9)]);
-  };
-
-  const handleAppStateChange = (event: AppStateChangeEvent) => {
-    addEvent(`App State: ${event.previousState} → ${event.currentState}`);
-  };
-
-  const handleScreenChange = (event: ScreenChangeEvent) => {
-    addEvent(`Screen: ${event.previousScreen || 'none'} → ${event.currentScreen}`);
-  };
-
-  // Use hooks to listen for changes
-  useAppStateDetector(handleAppStateChange, true);
-  useScreenChangeDetector(handleScreenChange, true);
-
-  const clearLog = () => setEvents([]);
-
+const EventLogDisplay: React.FC<EventLogDisplayProps> = ({ events, onClear }) => {
   return (
     <View style={styles.logContainer}>
       <View style={styles.logHeader}>
         <Text style={styles.sectionTitle}>📋 Event Log</Text>
-        <TouchableOpacity style={styles.clearButton} onPress={clearLog}>
+        <TouchableOpacity style={styles.clearButton} onPress={onClear}>
           <Text style={styles.clearButtonText}>Clear</Text>
         </TouchableOpacity>
       </View>
@@ -164,6 +154,23 @@ const Instructions: React.FC = () => (
 
 // Main example component
 const AppStateDetectorExample: React.FC = () => {
+  const [events, setEvents] = useState<string[]>([]);
+
+  const addEvent = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setEvents(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 9)]);
+  };
+
+  const handleAppStateChange = (event: AppStateChangeEvent) => {
+    addEvent(`App State: ${event.previousState} → ${event.currentState}`);
+    console.log('App state changed:', event);
+  };
+
+  const handleScreenChange = (event: ScreenChangeEvent) => {
+    addEvent(`Screen: ${event.previousScreen || 'none'} → ${event.currentScreen}`);
+    console.log('Screen changed:', event);
+  };
+
   return (
     <AppStateDetector
       enableLogging={true}
@@ -172,12 +179,8 @@ const AppStateDetectorExample: React.FC = () => {
       onAppBackground={() => console.log('App moved to background')}
       onAppInactive={() => console.log('App became inactive')}
       onAppActive={() => console.log('App became active')}
-      onAppStateChange={(event) => {
-        console.log('App state changed:', event);
-      }}
-      onScreenChange={(event) => {
-        console.log('Screen changed:', event);
-      }}
+      onAppStateChange={handleAppStateChange}
+      onScreenChange={handleScreenChange}
     >
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -189,7 +192,7 @@ const AppStateDetectorExample: React.FC = () => {
           <AppStateDisplay />
           <ScreenNavigationExample />
           <Instructions />
-          <EventLog />
+          <EventLogDisplay events={events} onClear={() => setEvents([])} />
         </ScrollView>
       </SafeAreaView>
     </AppStateDetector>

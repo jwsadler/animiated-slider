@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
 // App state types
@@ -92,11 +92,11 @@ export const useScreenChangeDetector = (
   onScreenChange?: (event: ScreenChangeEvent) => void,
   enableLogging: boolean = false
 ) => {
-  const currentScreen = useRef<string>('');
-  const previousScreen = useRef<string>('');
+  const [currentScreen, setCurrentScreen] = useState<string>('');
+  const [previousScreen, setPreviousScreen] = useState<string>('');
 
   const notifyScreenChange = useCallback((screenName: string) => {
-    const prevScreen = currentScreen.current;
+    const prevScreen = currentScreen;
     
     if (prevScreen !== screenName) {
       if (enableLogging) {
@@ -109,16 +109,16 @@ export const useScreenChangeDetector = (
         timestamp: Date.now(),
       };
 
-      previousScreen.current = prevScreen;
-      currentScreen.current = screenName;
+      setPreviousScreen(prevScreen);
+      setCurrentScreen(screenName);
 
       onScreenChange?.(event);
     }
-  }, [onScreenChange, enableLogging]);
+  }, [currentScreen, onScreenChange, enableLogging]);
 
   return {
-    currentScreen: currentScreen.current,
-    previousScreen: previousScreen.current,
+    currentScreen,
+    previousScreen,
     notifyScreenChange,
   };
 };
