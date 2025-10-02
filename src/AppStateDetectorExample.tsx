@@ -8,97 +8,37 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppStateDetector, {
-  useAppStateDetector,
-  useScreenChangeDetector,
-  useAppStateDetectorContext,
-  AppStateChangeEvent,
-  ScreenChangeEvent,
-} from './AppStateDetector';
+import AppStateDetector from './AppStateDetector';
+import { useAppStateDetector, AppStateChangeEvent } from './hooks/useAppState';
 
-// Example screen component that uses the context
+// Example component that displays current app state
 const AppStateDisplay: React.FC = () => {
-  const { currentAppState, previousAppState, currentScreen, previousScreen } = useAppStateDetectorContext();
+  const [currentState, setCurrentState] = useState('unknown');
+  const [previousState, setPreviousState] = useState('unknown');
+
+  const handleAppStateChange = (event: AppStateChangeEvent) => {
+    setCurrentState(event.currentState);
+    setPreviousState(event.previousState);
+  };
+
+  useAppStateDetector(handleAppStateChange, true);
 
   return (
     <View style={styles.stateContainer}>
       <Text style={styles.sectionTitle}>📱 Current App State</Text>
       <View style={styles.stateRow}>
         <Text style={styles.stateLabel}>Current:</Text>
-        <Text style={[styles.stateValue, styles.currentState]}>{currentAppState}</Text>
+        <Text style={[styles.stateValue, styles.currentState]}>{currentState}</Text>
       </View>
       <View style={styles.stateRow}>
         <Text style={styles.stateLabel}>Previous:</Text>
-        <Text style={styles.stateValue}>{previousAppState}</Text>
-      </View>
-      
-      <Text style={styles.sectionTitle}>🖥️ Current Screen</Text>
-      <View style={styles.stateRow}>
-        <Text style={styles.stateLabel}>Current:</Text>
-        <Text style={[styles.stateValue, styles.currentState]}>{currentScreen || 'None'}</Text>
-      </View>
-      <View style={styles.stateRow}>
-        <Text style={styles.stateLabel}>Previous:</Text>
-        <Text style={styles.stateValue}>{previousScreen || 'None'}</Text>
+        <Text style={styles.stateValue}>{previousState}</Text>
       </View>
     </View>
   );
 };
 
-// Example component that demonstrates screen change detection
-const ScreenNavigationExample: React.FC = () => {
-  const { notifyScreenChange } = useAppStateDetectorContext();
-  const [currentTab, setCurrentTab] = useState('home');
 
-  // Notify initial screen on mount
-  React.useEffect(() => {
-    notifyScreenChange('home');
-  }, [notifyScreenChange]);
-
-  const handleTabPress = (tabName: string) => {
-    console.log(`[ScreenNavigationExample] Switching to tab: ${tabName}`);
-    setCurrentTab(tabName);
-    notifyScreenChange(tabName);
-  };
-
-  const tabs = [
-    { id: 'home', label: '🏠 Home', color: '#007AFF' },
-    { id: 'profile', label: '👤 Profile', color: '#34C759' },
-    { id: 'settings', label: '⚙️ Settings', color: '#FF9500' },
-    { id: 'notifications', label: '🔔 Notifications', color: '#FF3B30' },
-  ];
-
-  return (
-    <View style={styles.navigationContainer}>
-      <Text style={styles.sectionTitle}>🧭 Screen Navigation Test</Text>
-      <Text style={styles.description}>
-        Tap the buttons below to simulate screen changes:
-      </Text>
-      
-      <View style={styles.tabContainer}>
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab.id}
-            style={[
-              styles.tabButton,
-              { backgroundColor: tab.color },
-              currentTab === tab.id && styles.activeTab,
-            ]}
-            onPress={() => handleTabPress(tab.id)}
-          >
-            <Text style={styles.tabText}>{tab.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      
-      <View style={styles.currentTabContainer}>
-        <Text style={styles.currentTabText}>
-          Current Tab: <Text style={styles.currentTabValue}>{currentTab}</Text>
-        </Text>
-      </View>
-    </View>
-  );
-};
 
 // Event log display component
 interface EventLogDisplayProps {
@@ -140,9 +80,6 @@ const Instructions: React.FC = () => (
         • <Text style={styles.bold}>App States:</Text> Switch between apps, minimize, or close the app to see state changes
       </Text>
       <Text style={styles.instruction}>
-        • <Text style={styles.bold}>Screen Changes:</Text> Tap the navigation buttons above to simulate screen changes
-      </Text>
-      <Text style={styles.instruction}>
         • <Text style={styles.bold}>Event Log:</Text> Watch the log below for real-time events
       </Text>
       <Text style={styles.instruction}>
@@ -166,11 +103,6 @@ const AppStateDetectorExample: React.FC = () => {
     console.log('App state changed:', event);
   };
 
-  const handleScreenChange = (event: ScreenChangeEvent) => {
-    addEvent(`Screen: ${event.previousScreen || 'none'} → ${event.currentScreen}`);
-    console.log('Screen changed:', event);
-  };
-
   return (
     <AppStateDetector
       enableLogging={true}
@@ -180,17 +112,15 @@ const AppStateDetectorExample: React.FC = () => {
       onAppInactive={() => console.log('App became inactive')}
       onAppActive={() => console.log('App became active')}
       onAppStateChange={handleAppStateChange}
-      onScreenChange={handleScreenChange}
     >
       <SafeAreaView style={styles.container}>
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <Text style={styles.title}>🔍 App State Detector</Text>
           <Text style={styles.subtitle}>
-            Monitor app states and screen navigation changes
+            Monitor app state changes
           </Text>
           
           <AppStateDisplay />
-          <ScreenNavigationExample />
           <Instructions />
           <EventLogDisplay events={events} onClear={() => setEvents([])} />
         </ScrollView>

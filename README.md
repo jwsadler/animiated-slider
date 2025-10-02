@@ -650,16 +650,15 @@ const DisabledScreen = () => (
 
 ## AppStateDetector Component
 
-A comprehensive React component for detecting app state changes and screen navigation events.
+A focused React component for detecting app state changes.
 
 ### Features
 
 - 📱 **App State Detection**: Monitor active, background, inactive, opened, and closed states
-- 🧭 **Screen Change Detection**: Track navigation between screens/tabs
 - 🎯 **Event Callbacks**: Individual callbacks for each state change
-- 📊 **Context Provider**: Access current states from any child component
 - 🔧 **TypeScript Support**: Full type definitions for all events and states
 - 📝 **Logging**: Optional console logging for debugging
+- 🪝 **Hook Support**: Use the `useAppStateDetector` hook independently
 
 ### Basic Usage
 
@@ -675,8 +674,8 @@ const App = () => {
       onAppClosed={() => console.log('App closed!')}
       onAppBackground={() => console.log('App in background')}
       onAppActive={() => console.log('App active')}
-      onScreenChange={(event) => {
-        console.log(`Screen changed: ${event.previousScreen} → ${event.currentScreen}`);
+      onAppStateChange={(event) => {
+        console.log(`App state changed: ${event.previousState} → ${event.currentState}`);
       }}
     >
       <YourAppContent />
@@ -689,60 +688,28 @@ const App = () => {
 
 ```tsx
 import React from 'react';
-import { useAppStateDetector, useScreenChangeDetector } from 'react-native-animated-slider';
+import { useAppStateDetector } from 'react-native-animated-slider';
 
 const MyComponent = () => {
   const { currentState } = useAppStateDetector((event) => {
     console.log('App state changed:', event);
-  });
-
-  const { notifyScreenChange } = useScreenChangeDetector((event) => {
-    console.log('Screen changed:', event);
-  });
-
-  const handleNavigate = (screenName: string) => {
-    // Your navigation logic
-    notifyScreenChange(screenName);
-  };
+  }, true); // Enable logging
 
   return (
     <View>
       <Text>Current app state: {currentState}</Text>
-      <Button title="Go to Profile" onPress={() => handleNavigate('profile')} />
     </View>
   );
 };
 ```
 
-### Using Context
 
-```tsx
-import React from 'react';
-import { useAppStateDetectorContext } from 'react-native-animated-slider';
-
-const StatusDisplay = () => {
-  const { 
-    currentAppState, 
-    previousAppState, 
-    currentScreen, 
-    notifyScreenChange 
-  } = useAppStateDetectorContext();
-
-  return (
-    <View>
-      <Text>App State: {currentAppState}</Text>
-      <Text>Current Screen: {currentScreen}</Text>
-    </View>
-  );
-};
-```
 
 ### AppStateDetector Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `onAppStateChange` | `(event: AppStateChangeEvent) => void` | `undefined` | General app state change callback |
-| `onScreenChange` | `(event: ScreenChangeEvent) => void` | `undefined` | Screen navigation change callback |
 | `onAppOpened` | `() => void` | `undefined` | Called when app is opened |
 | `onAppClosed` | `() => void` | `undefined` | Called when app is closed |
 | `onAppBackground` | `() => void` | `undefined` | Called when app goes to background |
@@ -760,32 +727,15 @@ interface AppStateChangeEvent {
   timestamp: number;
 }
 
-interface ScreenChangeEvent {
-  previousScreen?: string;
-  currentScreen: string;
-  timestamp: number;
-}
-
 type ExtendedAppState = 'active' | 'background' | 'inactive' | 'unknown' | 'closed' | 'opened';
-```
-
-### Integration with BottomTabNavigation
-
-The `BottomTabNavigation` component automatically integrates with `AppStateDetector` when wrapped:
-
-```tsx
-<AppStateDetector onScreenChange={(event) => console.log('Tab changed:', event)}>
-  <BottomTabNavigation tabs={tabs} />
-</AppStateDetector>
 ```
 
 **Key Features:**
 - 🔄 **Automatic Detection**: App state changes detected via React Native's AppState API
-- 🎯 **Screen Tracking**: Manual screen change notifications via `notifyScreenChange`
 - 📱 **Cross-Platform**: Works on both iOS and Android
 - 🔧 **TypeScript**: Full TypeScript support with comprehensive interfaces
-- 🎪 **Context Provider**: Access state from any child component
 - 📊 **Event Logging**: Optional logging for debugging and analytics
+- 🪝 **Hook Support**: Use independently with `useAppStateDetector` hook
 
 ## Requirements
 

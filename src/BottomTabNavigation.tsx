@@ -61,22 +61,10 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.id || '');
 
-  // Optional integration with AppStateDetector
-  let appStateContext: any = null;
-  try {
-    const { useAppStateDetectorContext } = require('./AppStateDetector');
-    appStateContext = useAppStateDetectorContext();
-  } catch (error) {
-    // AppStateDetector not available, continue normally
-  }
-
   const handleTabPress = (tabId: string) => {
     if (disabled) return;
     setActiveTab(tabId);
     onTabChange?.(tabId);
-    
-    // Notify AppStateDetector about screen change if available
-    appStateContext?.notifyScreenChange?.(tabId);
   };
 
   const activeTabConfig = tabs.find(tab => tab.id === activeTab);
