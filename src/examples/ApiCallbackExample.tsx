@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -9,221 +9,68 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useApiStore, User, Post } from '../stores/apiStore';
 
-// Types for our API responses
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  website: string;
-  company: {
-    name: string;
-  };
-}
-
-interface Post {
-  id: number;
-  title: string;
-  body: string;
-  userId: number;
-}
-
-// API service with callback-based methods
-class ApiService {
-  private static baseUrl = 'https://jsonplaceholder.typicode.com';
-
-  // Callback-based method to fetch users
-  static fetchUsers(
-    onSuccess: (users: User[]) => void,
-    onError: (error: string) => void,
-    onLoading?: (loading: boolean) => void
-  ) {
-    onLoading?.(true);
-    
-    fetch(`${this.baseUrl}/users`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((users: User[]) => {
-        onLoading?.(false);
-        onSuccess(users);
-      })
-      .catch(error => {
-        onLoading?.(false);
-        onError(error.message || 'Failed to fetch users');
-      });
-  }
-
-  // Callback-based method to fetch posts by user
-  static fetchUserPosts(
-    userId: number,
-    onSuccess: (posts: Post[]) => void,
-    onError: (error: string) => void,
-    onLoading?: (loading: boolean) => void
-  ) {
-    onLoading?.(true);
-    
-    fetch(`${this.baseUrl}/posts?userId=${userId}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((posts: Post[]) => {
-        onLoading?.(false);
-        onSuccess(posts);
-      })
-      .catch(error => {
-        onLoading?.(false);
-        onError(error.message || 'Failed to fetch posts');
-      });
-  }
-
-  // Callback-based method to create a new post
-  static createPost(
-    post: Omit<Post, 'id'>,
-    onSuccess: (createdPost: Post) => void,
-    onError: (error: string) => void,
-    onLoading?: (loading: boolean) => void
-  ) {
-    onLoading?.(true);
-    
-    fetch(`${this.baseUrl}/posts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(post),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((createdPost: Post) => {
-        onLoading?.(false);
-        onSuccess(createdPost);
-      })
-      .catch(error => {
-        onLoading?.(false);
-        onError(error.message || 'Failed to create post');
-      });
-  }
-}
-
-// Main component demonstrating callback-based API calls
+// Main component demonstrating callback-based API calls with Zustand
 const ApiCallbackExample: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Get state and actions from Zustand store
+  const {
+    users,
+    posts,
+    selectedUser,
+    loading,
+    error,
+    fetchUsers,
+    fetchUserPosts,
+    createPost,
+    selectUser,
+    clearError,
+    clearData,
+  } = useApiStore();
 
-  // Callback handlers for users
-  const handleUsersSuccess = useCallback((fetchedUsers: User[]) => {
-    setUsers(fetchedUsers);
-    setError(null);
-    console.log('✅ Users fetched successfully:', fetchedUsers.length);
-  }, []);
-
-  const handleUsersError = useCallback((errorMessage: string) => {
-    setError(errorMessage);
-    Alert.alert('Error', `Failed to fetch users: ${errorMessage}`);
-    console.error('❌ Users fetch error:', errorMessage);
-  }, []);
-
-  // Callback handlers for posts
-  const handlePostsSuccess = useCallback((fetchedPosts: Post[]) => {
-    setPosts(fetchedPosts);
-    setError(null);
-    console.log('✅ Posts fetched successfully:', fetchedPosts.length);
-  }, []);
-
-  const handlePostsError = useCallback((errorMessage: string) => {
-    setError(errorMessage);
-    Alert.alert('Error', `Failed to fetch posts: ${errorMessage}`);
-    console.error('❌ Posts fetch error:', errorMessage);
-  }, []);
-
-  // Callback handlers for creating posts
-  const handleCreatePostSuccess = useCallback((createdPost: Post) => {
-    setPosts(prevPosts => [createdPost, ...prevPosts]);
-    setError(null);
-    Alert.alert('Success', 'Post created successfully!');
-    console.log('✅ Post created successfully:', createdPost);
-  }, []);
-
-  const handleCreatePostError = useCallback((errorMessage: string) => {
-    setError(errorMessage);
-    Alert.alert('Error', `Failed to create post: ${errorMessage}`);
-    console.error('❌ Create post error:', errorMessage);
-  }, []);
-
-  // Action handlers
-  const fetchUsers = () => {
-    ApiService.fetchUsers(
-      handleUsersSuccess,
-      handleUsersError,
-      setLoading
-    );
+  // Action handlers that use Zustand store actions
+  const handleFetchUsers = () => {
+    fetchUsers(); // This internally uses callbacks to update Zustand state
   };
 
-  const fetchUserPosts = (user: User) => {
-    setSelectedUser(user);
-    ApiService.fetchUserPosts(
-      user.id,
-      handlePostsSuccess,
-      handlePostsError,
-      setLoading
-    );
+  const handleUserSelect = (user: User) => {
+    selectUser(user);
+    fetchUserPosts(user.id); // This internally uses callbacks to update Zustand state
   };
 
-  const createSamplePost = () => {
+  const handleCreateSamplePost = () => {
     if (!selectedUser) {
       Alert.alert('Error', 'Please select a user first');
       return;
     }
 
     const newPost: Omit<Post, 'id'> = {
-      title: 'Sample Post from React Native',
-      body: 'This is a sample post created using callback-based API call.',
+      title: 'Sample Post from React Native + Zustand',
+      body: 'This is a sample post created using callback-based API calls integrated with Zustand state management.',
       userId: selectedUser.id,
     };
 
-    ApiService.createPost(
-      newPost,
-      handleCreatePostSuccess,
-      handleCreatePostError,
-      setLoading
-    );
+    createPost(newPost); // This internally uses callbacks to update Zustand state
+    Alert.alert('Success', 'Post created successfully!');
   };
 
-  const clearData = () => {
-    setUsers([]);
-    setPosts([]);
-    setSelectedUser(null);
-    setError(null);
+  const handleClearData = () => {
+    clearData();
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>🔄 API Callback Example</Text>
+        <Text style={styles.title}>🔄 API Callback + Zustand Example</Text>
         <Text style={styles.subtitle}>
-          Demonstrating callback-based API calls in React Native
+          Demonstrating callback-based API calls integrated with Zustand state management
         </Text>
 
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, styles.primaryButton]}
-            onPress={fetchUsers}
+            onPress={handleFetchUsers}
             disabled={loading}
           >
             <Text style={styles.buttonText}>
@@ -233,7 +80,7 @@ const ApiCallbackExample: React.FC = () => {
 
           <TouchableOpacity
             style={[styles.button, styles.secondaryButton]}
-            onPress={createSamplePost}
+            onPress={handleCreateSamplePost}
             disabled={loading || !selectedUser}
           >
             <Text style={styles.buttonText}>
@@ -243,7 +90,7 @@ const ApiCallbackExample: React.FC = () => {
 
           <TouchableOpacity
             style={[styles.button, styles.dangerButton]}
-            onPress={clearData}
+            onPress={handleClearData}
             disabled={loading}
           >
             <Text style={styles.buttonText}>🗑️ Clear Data</Text>
@@ -276,7 +123,7 @@ const ApiCallbackExample: React.FC = () => {
                   styles.userCard,
                   selectedUser?.id === user.id && styles.selectedUserCard
                 ]}
-                onPress={() => fetchUserPosts(user)}
+                onPress={() => handleUserSelect(user)}
               >
                 <Text style={styles.userName}>{user.name}</Text>
                 <Text style={styles.userEmail}>{user.email}</Text>
@@ -311,16 +158,19 @@ const ApiCallbackExample: React.FC = () => {
         <View style={styles.instructionsContainer}>
           <Text style={styles.instructionsTitle}>📖 How to Use</Text>
           <Text style={styles.instruction}>
-            1. Tap "Fetch Users" to load users from the API
+            1. Tap "Fetch Users" to load users from the API using callbacks + Zustand
           </Text>
           <Text style={styles.instruction}>
-            2. Tap on any user to fetch their posts
+            2. Tap on any user to fetch their posts (callback integration)
           </Text>
           <Text style={styles.instruction}>
-            3. Tap "Create Sample Post" to create a new post for the selected user
+            3. Tap "Create Sample Post" to create a new post via callback API
           </Text>
           <Text style={styles.instruction}>
-            4. Watch the console for detailed callback logs
+            4. Watch the console for detailed callback logs with [Zustand] prefix
+          </Text>
+          <Text style={styles.instruction}>
+            5. Use Redux DevTools to see Zustand state changes in real-time
           </Text>
         </View>
       </ScrollView>
