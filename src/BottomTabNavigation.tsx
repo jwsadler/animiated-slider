@@ -13,7 +13,7 @@ import {
 export interface TabConfig {
   id: string;
   label: string;
-  icon: string; // You can replace this with React.ReactNode for custom icons
+  icon: React.ReactNode; // Now supports SVG icons and any React component
   component: React.ComponentType<any>;
 }
 
@@ -86,13 +86,29 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
               activeOpacity={0.7}
             >
               {/* Icon */}
-              <Text style={[
-                styles.icon,
-                { color },
-                iconStyle
-              ]}>
-                {tab.icon}
-              </Text>
+              <View style={[styles.iconContainer]}>
+                {typeof tab.icon === 'string' ? (
+                  <Text style={[
+                    styles.icon,
+                    { color },
+                    iconStyle
+                  ]}>
+                    {tab.icon}
+                  </Text>
+                ) : React.isValidElement(tab.icon) && tab.icon.type && 
+                     typeof tab.icon.type === 'function' && 
+                     tab.icon.type.name?.startsWith('Dynamic') ? (
+                  // Handle dynamic icons that need active state
+                  React.cloneElement(tab.icon as React.ReactElement, {
+                    isActive,
+                    activeColor,
+                    inactiveColor,
+                  })
+                ) : (
+                  // Render regular SVG or custom React component
+                  tab.icon
+                )}
+              </View>
 
               {/* Label */}
               <Text style={[
@@ -140,9 +156,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 5,
   },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+    height: 24,
+    width: 24,
+  },
   icon: {
     fontSize: 24,
-    marginBottom: 4,
   },
   label: {
     fontSize: 12,
