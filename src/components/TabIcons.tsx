@@ -11,24 +11,17 @@ interface IconProps {
 // Auction/Hammer Icon
 export const AuctionIcon: React.FC<IconProps> = ({ color = '#000', size = 24 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M9.5 2L8.5 3H4V5H20V3H15.5L14.5 2H9.5ZM6 7V19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6ZM8 9H10V19H8V9ZM14 9H16V19H14V9Z"
-      fill={color}
-    />
-    <Path
-      d="M21 6L19 8L17 6L15 8L13 6L11 8L9 6L7 8L5 6L3 8L1 6V4L3 6L5 4L7 6L9 4L11 6L13 4L15 6L17 4L19 6L21 4V6Z"
-      fill={color}
-    />
+    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2"/>
+    <Path d="M8 12h8" stroke={color} strokeWidth="2"/>
+    <Path d="M12 8v8" stroke={color} strokeWidth="2"/>
   </Svg>
 );
 
 // Payment/Credit Card Icon
 export const PaymentIcon: React.FC<IconProps> = ({ color = '#000', size = 24 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <Rect x="2" y="4" width="20" height="16" rx="2" stroke={color} strokeWidth="2" fill="none"/>
-    <Path d="M2 10h20" stroke={color} strokeWidth="2"/>
-    <Path d="M6 14h4" stroke={color} strokeWidth="2"/>
-    <Path d="M6 17h2" stroke={color} strokeWidth="2"/>
+    <Rect x="4" y="8" width="16" height="10" rx="2" stroke={color} strokeWidth="2"/>
+    <Path d="M4 12h16" stroke={color} strokeWidth="2"/>
   </Svg>
 );
 
