@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import DynamicLabelsService, { Labels, getDynamicLabels } from '../services/DynamicLabelsService';
 
+// Note: This currently uses a mock Firebase implementation
+// No Firebase packages are required - it works out of the box!
+
 // Hook for using dynamic labels in components
 export const useDynamicLabels = () => {
   const [labels, setLabels] = useState<Labels>(getDynamicLabels().getLabels());

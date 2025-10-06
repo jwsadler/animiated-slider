@@ -1,5 +1,8 @@
 // Mock Firebase Realtime Database Service for Dynamic Labels
 // This simulates Firebase functionality without requiring actual Firebase setup
+// 
+// 🚨 IMPORTANT: This works immediately without any Firebase dependencies!
+// No need to install @react-native-firebase packages - this is a complete mock implementation
 
 export interface Labels {
   common: {
