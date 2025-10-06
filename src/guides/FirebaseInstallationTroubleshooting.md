@@ -117,20 +117,29 @@ const testFirebaseDatabase = async () => {
 
 ## 📱 **Your Specific Case**
 
-Based on your package.json, try this exact command:
+Based on your error, you have Firebase app@23.3.1 but database wants app@23.4.0. Try these solutions:
 
+### **Option 1: Install Exact Matching Version**
 ```bash
-npm install @react-native-firebase/database@23.1.2
+npm install @react-native-firebase/database@23.3.1
 ```
 
-If that fails, try:
-
+### **Option 2: Update All Firebase Packages Together**
 ```bash
-# Clear everything and start fresh
+npm install @react-native-firebase/app@23.4.0 @react-native-firebase/auth@23.4.0 @react-native-firebase/firestore@23.4.0 @react-native-firebase/crashlytics@23.4.0 @react-native-firebase/functions@23.4.0 @react-native-firebase/database@23.4.0
+```
+
+### **Option 3: Force Install (if you're okay with potential conflicts)**
+```bash
+npm install @react-native-firebase/database --legacy-peer-deps
+```
+
+### **Option 4: Clear and Reinstall**
+```bash
 rm -rf node_modules package-lock.json
 npm cache clean --force
 npm install
-npm install @react-native-firebase/database@23.1.2
+npm install @react-native-firebase/database@23.3.1
 ```
 
 ## 🚨 **Still Having Issues?**
