@@ -1,0 +1,24 @@
+{
+  "name": "firebase-dynamic-labels-dependencies",
+  "description": "Required dependencies for Firebase Dynamic Labels",
+  "dependencies": {
+    "@react-native-firebase/app": "^18.6.1",
+    "@react-native-firebase/database": "^18.6.1",
+    "@react-native-async-storage/async-storage": "^1.19.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-native": "^0.72.0"
+  },
+  "installation": {
+    "npm": "npm install @react-native-firebase/app @react-native-firebase/database @react-native-async-storage/async-storage",
+    "yarn": "yarn add @react-native-firebase/app @react-native-firebase/database @react-native-async-storage/async-storage"
+  },
+  "setup_notes": [
+    "1. Follow React Native Firebase installation guide for your platform",
+    "2. Configure Firebase project in Firebase Console",
+    "3. Add google-services.json (Android) and GoogleService-Info.plist (iOS)",
+    "4. Update android/build.gradle and ios/Podfile as per Firebase docs",
+    "5. Run 'cd ios && pod install' for iOS"
+  ]
+}
