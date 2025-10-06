@@ -11,19 +11,19 @@ const SimpleScreen: React.FC<{ title: string }> = ({ title }) => (
   </View>
 );
 
-// Minimal test to debug the text error
+// Minimal test to debug the text error - SVG icons only
 const DebugTextError: React.FC = () => {
   const tabs: TabConfig[] = [
     {
       id: 'test1',
       label: 'Test 1',
-      icon: <AuctionIcon color="#8E8E93" size={24} />,
+      icon: <AuctionIcon />, // Color and size will be set dynamically
       component: () => <SimpleScreen title="Test Screen 1" />,
     },
     {
       id: 'test2',
       label: 'Test 2',
-      icon: <PaymentIcon color="#8E8E93" size={24} />,
+      icon: <PaymentIcon />, // Color and size will be set dynamically
       component: () => <SimpleScreen title="Test Screen 2" />,
     },
   ];

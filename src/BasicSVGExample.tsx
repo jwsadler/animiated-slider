@@ -8,18 +8,18 @@ import { AuctionIcon, PaymentIcon } from './components/TabIcons';
 
 // Basic example that should work without TypeScript errors
 const BasicSVGExample: React.FC = () => {
-  // Simple tabs with explicit typing
+  // Simple tabs with SVG icons only - color/size set dynamically
   const tabs: TabConfig[] = [
     {
       id: 'auction',
       label: 'Auctions',
-      icon: <AuctionIcon color="#8E8E93" size={24} />,
+      icon: <AuctionIcon />,
       component: AuctionScreen,
     },
     {
       id: 'payment', 
       label: 'Payment',
-      icon: <PaymentIcon color="#8E8E93" size={24} />,
+      icon: <PaymentIcon />,
       component: PaymentScreen,
     },
   ];

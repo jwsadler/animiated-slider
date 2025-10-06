@@ -13,7 +13,7 @@ import {
 export interface TabConfig {
   id: string;
   label: string;
-  icon: string | React.ReactElement; // Supports emoji strings and SVG React elements
+  icon: React.ReactElement; // Only supports SVG React elements
   component: React.ComponentType<any>;
 }
 
@@ -87,18 +87,12 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
             >
               {/* Icon */}
               <View style={[styles.iconContainer]}>
-                {typeof tab.icon === 'string' ? (
-                  <Text style={[
-                    styles.icon,
-                    { color },
-                    iconStyle
-                  ]}>
-                    {tab.icon}
-                  </Text>
-                ) : tab.icon ? (
-                  // Render SVG or React component
-                  // For dynamic icons, the component should handle its own state
-                  tab.icon
+                {tab.icon ? (
+                  // Render SVG React component
+                  React.cloneElement(tab.icon, { 
+                    color: color,
+                    size: tab.icon.props.size || 24 
+                  })
                 ) : null}
               </View>
 
@@ -154,9 +148,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     height: 24,
     width: 24,
-  },
-  icon: {
-    fontSize: 24,
   },
   label: {
     fontSize: 12,
