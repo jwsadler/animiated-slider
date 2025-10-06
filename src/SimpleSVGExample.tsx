@@ -29,19 +29,19 @@ const SimpleSVGExample: React.FC = () => {
     {
       id: 'tab1',
       label: 'Tab 1',
-      icon: <AuctionIcon />,  // Just the icon, no props needed!
+      icon: <AuctionIcon color="#8E8E93" size={24} />,
       component: Screen1,
     },
     {
       id: 'tab2',
       label: 'Tab 2', 
-      icon: <PaymentIcon />,  // Just the icon, no props needed!
+      icon: <PaymentIcon color="#8E8E93" size={24} />,
       component: Screen2,
     },
     {
       id: 'tab3',
       label: 'Tab 3',
-      icon: <ProfileIcon />,  // Just the icon, no props needed!
+      icon: <ProfileIcon color="#8E8E93" size={24} />,
       component: Screen3,
     },
   ];

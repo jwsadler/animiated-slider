@@ -87,13 +87,7 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
             >
               {/* Icon */}
               <View style={[styles.iconContainer]}>
-                {tab.icon ? (
-                  // Render SVG React component with dynamic color
-                  React.cloneElement(tab.icon, { 
-                    color: color,
-                    size: 24 
-                  })
-                ) : null}
+                {tab.icon}
               </View>
 
               {/* Label */}
