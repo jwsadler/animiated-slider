@@ -95,18 +95,9 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
                   ]}>
                     {tab.icon}
                   </Text>
-                ) : React.isValidElement(tab.icon) && 
-                     tab.icon.type && 
-                     typeof tab.icon.type === 'function' && 
-                     tab.icon.type.name?.startsWith('Dynamic') ? (
-                  // Handle dynamic icons that need active state
-                  React.cloneElement(tab.icon, {
-                    isActive,
-                    activeColor,
-                    inactiveColor,
-                  })
                 ) : (
-                  // Render regular SVG or custom React component
+                  // Render SVG or React component
+                  // For dynamic icons, the component should handle its own state
                   tab.icon
                 )}
               </View>
