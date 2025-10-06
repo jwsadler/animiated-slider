@@ -7,7 +7,7 @@ This service provides methods to work with interests data using a static JSON fi
 - **Static Data**: Uses local JSON file for fast, reliable data access
 - **Same Interface**: Maintains the same callback-based interface as the original API service
 - **Simulated Loading**: Includes artificial delay to mimic network behavior
-- **Additional Methods**: Includes bonus methods for searching and finding specific interests
+- **Additional Methods**: Includes bonus methods for searching, finding, and saving selected interests
 
 ## Usage
 
@@ -62,6 +62,29 @@ InterestApiService.searchInterests(
 );
 ```
 
+### Save Selected Interests
+
+```typescript
+const selectedInterests = [
+  { id: '1', name: 'Photography', description: '...', imageUrl: '...' },
+  { id: '3', name: 'Hiking', description: '...', imageUrl: '...' },
+];
+
+InterestApiService.saveSelectedInterests(
+  selectedInterests,
+  (response) => {
+    console.log('Save successful:', response.message);
+    console.log('Saved count:', response.savedCount);
+  },
+  (error: string) => {
+    console.error('Save error:', error);
+  },
+  (loading: boolean) => {
+    console.log('Saving state:', loading);
+  }
+);
+```
+
 ## Data Structure
 
 The service uses the following interface:
@@ -90,6 +113,42 @@ The interests data is stored in `src/data/interests.json` and contains 10 sample
 - Gardening
 
 Each interest includes an ID, name, description, and image URL from Unsplash.
+
+## Middleware Integration
+
+The `saveSelectedInterests` method is designed to work with your middleware API. Currently it simulates the API call, but includes the actual implementation code in comments.
+
+### Expected Middleware Endpoint
+
+```
+POST https://your-middleware-api.com/api/user/interests
+```
+
+### Payload Structure
+
+```json
+{
+  "selectedInterests": [
+    {
+      "id": "1",
+      "name": "Photography",
+      "description": "Capturing moments...",
+      "imageUrl": "https://..."
+    }
+  ],
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "userId": "current-user-id"
+}
+```
+
+### Expected Response
+
+```json
+{
+  "message": "Selected interests saved successfully",
+  "savedCount": 2
+}
+```
 
 ## Migration from API Service
 
