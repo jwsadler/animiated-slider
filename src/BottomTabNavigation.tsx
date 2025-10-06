@@ -13,7 +13,7 @@ import {
 export interface TabConfig {
   id: string;
   label: string;
-  icon: React.ReactNode; // Now supports SVG icons and any React component
+  icon: string | React.ReactElement; // Supports emoji strings and SVG React elements
   component: React.ComponentType<any>;
 }
 
@@ -95,11 +95,12 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
                   ]}>
                     {tab.icon}
                   </Text>
-                ) : React.isValidElement(tab.icon) && tab.icon.type && 
+                ) : React.isValidElement(tab.icon) && 
+                     tab.icon.type && 
                      typeof tab.icon.type === 'function' && 
                      tab.icon.type.name?.startsWith('Dynamic') ? (
                   // Handle dynamic icons that need active state
-                  React.cloneElement(tab.icon as React.ReactElement, {
+                  React.cloneElement(tab.icon, {
                     isActive,
                     activeColor,
                     inactiveColor,
