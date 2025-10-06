@@ -65,7 +65,7 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
     <View style={[styles.container, containerStyle]}>
       {/* Content Area */}
       <View style={[styles.content, contentStyle]}>
-        {ActiveComponent && <ActiveComponent />}
+        {ActiveComponent ? <ActiveComponent /> : null}
       </View>
 
       {/* Tab Bar */}
@@ -95,11 +95,11 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
                   ]}>
                     {tab.icon}
                   </Text>
-                ) : (
+                ) : tab.icon ? (
                   // Render SVG or React component
                   // For dynamic icons, the component should handle its own state
                   tab.icon
-                )}
+                ) : null}
               </View>
 
               {/* Label */}
@@ -108,7 +108,7 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
                 { color },
                 labelStyle
               ]}>
-                {tab.label}
+                {tab.label || ''}
               </Text>
             </TouchableOpacity>
           );
