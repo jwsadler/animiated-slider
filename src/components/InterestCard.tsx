@@ -51,22 +51,6 @@ export const InterestCard: React.FC<InterestCardProps> = ({
       disabled={disabled}
       activeOpacity={0.7}
     >
-      {/* Background image */}
-      {interest.imageUrl && (
-        <Image
-          source={{ uri: interest.imageUrl }}
-          style={styles.backgroundImage}
-          resizeMode="cover"
-        />
-      )}
-      
-      {/* Overlay for better text readability */}
-      <View style={[
-        styles.overlay,
-        isSelected && styles.selectedOverlay,
-        disabled && styles.disabledOverlay,
-      ]} />
-      
       {/* Selection indicator */}
       <View style={styles.selectionIndicator}>
         {isSelected ? (
@@ -83,6 +67,18 @@ export const InterestCard: React.FC<InterestCardProps> = ({
         <Text style={[styles.interestName, disabled && styles.disabledText]}>
           {interest.name}
         </Text>
+        
+        {/* Centered image below title */}
+        {interest.imageUrl && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: interest.imageUrl }}
+              style={styles.interestImage}
+              resizeMode="cover"
+            />
+          </View>
+        )}
+        
         {interest.description && (
           <Text
             style={[
@@ -100,52 +96,32 @@ export const InterestCard: React.FC<InterestCardProps> = ({
 
 const styles = StyleSheet.create({
   interestCard: {
+    backgroundColor: 'white',
     borderRadius: 16,
     marginBottom: 16,
-    overflow: 'hidden',
+    padding: 16,
     position: 'relative',
-    minHeight: 120,
+    minHeight: 160,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 5,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   selectedCard: {
     borderColor: '#007AFF',
+    backgroundColor: '#f0f8ff',
     shadowColor: '#007AFF',
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
   },
   disabledCard: {
     opacity: 0.6,
-  },
-  backgroundImage: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '100%',
-    height: '100%',
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Dark overlay for text readability
-  },
-  selectedOverlay: {
-    backgroundColor: 'rgba(0, 122, 255, 0.3)', // Blue tint when selected
-  },
-  disabledOverlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Darker overlay when disabled
+    backgroundColor: '#f5f5f5',
   },
   selectionIndicator: {
     position: 'absolute',
@@ -179,36 +155,41 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#ddd',
+    backgroundColor: 'transparent',
   },
   interestContent: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-    zIndex: 1,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   interestName: {
     fontSize: 18,
     fontWeight: '700',
-    color: 'white',
-    marginBottom: 4,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    color: '#333',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  imageContainer: {
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  interestImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: '#f0f0f0',
   },
   interestDescription: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#666',
     lineHeight: 20,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
   disabledText: {
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: '#999',
   },
 });
 

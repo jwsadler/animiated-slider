@@ -52,12 +52,14 @@ const InterestCardExample: React.FC = () => {
   };
 
   const renderInterestCard = ({ item }: { item: Interest }) => (
-    <InterestCard
-      interest={item}
-      isSelected={isInterestSelected(item)}
-      onToggle={handleToggleInterest}
-      disabled={false}
-    />
+    <View style={styles.cardWrapper}>
+      <InterestCard
+        interest={item}
+        isSelected={isInterestSelected(item)}
+        onToggle={handleToggleInterest}
+        disabled={false}
+      />
+    </View>
   );
 
   if (loading) {
@@ -93,7 +95,6 @@ const InterestCardExample: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
         numColumns={2}
-        columnWrapperStyle={styles.row}
       />
     </SafeAreaView>
   );
@@ -127,8 +128,9 @@ const styles = StyleSheet.create({
   listContainer: {
     padding: 16,
   },
-  row: {
-    justifyContent: 'space-between',
+  cardWrapper: {
+    flex: 1,
+    marginHorizontal: 4,
   },
   loadingText: {
     marginTop: 12,
