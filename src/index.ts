@@ -9,4 +9,10 @@ export { default as TabNavigationExample } from './TabNavigationExample';
 export { useApiStore, ApiService, User, Post } from './stores/apiStore';
 export { default as ApiCallbackZustandExample } from './examples/ApiCallbackZustandExample';
 
+// Interest Selection Components
+export { InterestApiService, Interest } from './services/InterestApiService';
+export { default as InterestSelectionScreen, InterestSelectionScreenProps } from './components/InterestSelectionScreen';
+export { default as CategorySelectionScreen, CategorySelectionScreenProps, Category } from './components/CategorySelectionScreen';
+export { default as InterestSelectionExample } from './examples/InterestSelectionExample';
+
 export default AnimatedSlider;

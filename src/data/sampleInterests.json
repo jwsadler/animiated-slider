@@ -1,0 +1,52 @@
+[
+  {
+    "id": "1",
+    "name": "Technology",
+    "description": "Latest tech trends, gadgets, and innovations"
+  },
+  {
+    "id": "2",
+    "name": "Sports",
+    "description": "Football, basketball, tennis, and more"
+  },
+  {
+    "id": "3",
+    "name": "Music",
+    "description": "All genres from classical to electronic"
+  },
+  {
+    "id": "4",
+    "name": "Travel",
+    "description": "Explore destinations around the world"
+  },
+  {
+    "id": "5",
+    "name": "Food & Cooking",
+    "description": "Recipes, restaurants, and culinary adventures"
+  },
+  {
+    "id": "6",
+    "name": "Art & Design",
+    "description": "Visual arts, graphic design, and creativity"
+  },
+  {
+    "id": "7",
+    "name": "Health & Fitness",
+    "description": "Wellness, workouts, and healthy living"
+  },
+  {
+    "id": "8",
+    "name": "Books & Reading",
+    "description": "Literature, novels, and educational content"
+  },
+  {
+    "id": "9",
+    "name": "Movies & TV",
+    "description": "Entertainment, reviews, and recommendations"
+  },
+  {
+    "id": "10",
+    "name": "Gaming",
+    "description": "Video games, mobile games, and esports"
+  }
+]
