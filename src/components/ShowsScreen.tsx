@@ -67,11 +67,26 @@ const ShowCard: React.FC<ShowCardProps> = ({
   onPress,
   disabled = false,
 }) => {
+  const [isMuted, setIsMuted] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
   const handlePress = () => {
     if (!disabled) {
       log.debug('🎯 [ShowCard] Show pressed:', show.title);
       onPress(show);
     }
+  };
+
+  const handleVolumeToggle = (e: any) => {
+    e.stopPropagation(); // Prevent card press
+    setIsMuted(!isMuted);
+    log.debug('🔊 [ShowCard] Volume toggled:', !isMuted ? 'muted' : 'unmuted');
+  };
+
+  const handleBookmarkToggle = (e: any) => {
+    e.stopPropagation(); // Prevent card press
+    setIsBookmarked(!isBookmarked);
+    log.debug('🔖 [ShowCard] Bookmark toggled:', !isBookmarked ? 'bookmarked' : 'unbookmarked');
   };
 
   return (
@@ -90,7 +105,6 @@ const ShowCard: React.FC<ShowCardProps> = ({
         {show.isLive ? (
           <View style={styles.liveIndicator}>
             <View style={styles.liveIcon}>
-              {/* Sound SVG placeholder - you can replace with actual SVG */}
               <SoundIcon width={12} height={12} color="#FFFFFF" />
             </View>
             <Text style={styles.liveText}>live</Text>
@@ -98,15 +112,29 @@ const ShowCard: React.FC<ShowCardProps> = ({
               <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
               <EyeIcon width={12} height={12} color="#FFFFFF" />
             </View>
-            {/* Mute button */}
-            <TouchableOpacity style={styles.muteButton}>
-              <MuteIcon width={12} height={12} color="#FFFFFF" />
+            {/* Volume toggle button */}
+            <TouchableOpacity 
+              style={[styles.volumeButton, isMuted && styles.mutedButton]} 
+              onPress={handleVolumeToggle}
+            >
+              {isMuted ? (
+                <MuteIcon width={12} height={12} color="#FFFFFF" />
+              ) : (
+                <SoundIcon width={12} height={12} color="#FFFFFF" />
+              )}
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.scheduledIndicator}>
-            <TouchableOpacity style={styles.bookmarkButton}>
-              <BookmarkIcon width={12} height={12} color="#FFFFFF" />
+            <TouchableOpacity 
+              style={[styles.bookmarkButton, isBookmarked && styles.bookmarkedButton]} 
+              onPress={handleBookmarkToggle}
+            >
+              <BookmarkIcon 
+                width={12} 
+                height={12} 
+                color={isBookmarked ? "#FFD700" : "#FFFFFF"} 
+              />
             </TouchableOpacity>
           </View>
         )}
@@ -480,7 +508,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 4,
   },
-  muteButton: {
+  volumeButton: {
     width: 24,
     height: 24,
     borderRadius: 12,
@@ -488,6 +516,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 4,
+  },
+  mutedButton: {
+    backgroundColor: 'rgba(255, 0, 0, 0.8)', // Red background when muted
   },
   scheduledIndicator: {
     position: 'absolute',
@@ -501,6 +532,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  bookmarkedButton: {
+    backgroundColor: 'rgba(255, 215, 0, 0.9)', // Gold background when bookmarked
   },
   showInfo: {
     padding: 12,
