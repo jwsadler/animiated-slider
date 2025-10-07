@@ -14,6 +14,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { logger } from 'react-native-logs';
 import { ShowsApiService, Show } from '../services/ShowsApiService';
 
+import {
+  SearchIcon,
+  ChatIcon,
+  NotificationIcon,
+  SoundIcon,
+  MuteIcon,
+  BookmarkIcon,
+  EyeIcon,
+  UserIcon,
+} from './icons/ShowsIcons';
+
 // Configure logger
 const log = logger.createLogger({
   severity: __DEV__ ? logger.consoleTransport.LogLevel.DEBUG : logger.consoleTransport.LogLevel.ERROR,
@@ -79,22 +90,22 @@ const ShowCard: React.FC<ShowCardProps> = ({
           <View style={styles.liveIndicator}>
             <View style={styles.liveIcon}>
               {/* Sound SVG placeholder - you can replace with actual SVG */}
-              <Text style={styles.liveIconText}>🔊</Text>
+              <SoundIcon width={12} height={12} color="#FFFFFF" />
             </View>
             <Text style={styles.liveText}>live</Text>
             <View style={styles.viewerCount}>
               <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
-              <Text style={styles.eyeIcon}>👁</Text>
+              <EyeIcon width={12} height={12} color="#FFFFFF" />
             </View>
             {/* Mute button */}
             <TouchableOpacity style={styles.muteButton}>
-              <Text style={styles.muteIcon}>🔇</Text>
+              <MuteIcon width={12} height={12} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.scheduledIndicator}>
             <TouchableOpacity style={styles.bookmarkButton}>
-              <Text style={styles.bookmarkIcon}>🔖</Text>
+              <BookmarkIcon width={12} height={12} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         )}
@@ -103,7 +114,7 @@ const ShowCard: React.FC<ShowCardProps> = ({
       {/* Show info */}
       <View style={styles.showInfo}>
         <View style={styles.showHeader}>
-          <Text style={styles.userIcon}>👤</Text>
+          <UserIcon width={14} height={14} color="#666666" />
           <Text style={styles.nickname}>{show.nickname}</Text>
         </View>
         <Text style={styles.showTitle} numberOfLines={2}>
@@ -274,7 +285,7 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
       {/* Header with search and action buttons */}
       <View style={styles.header}>
         <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <SearchIcon width={16} height={16} color="#666666" />
           <TextInput
             style={styles.searchInput}
             placeholder="Search"
@@ -288,14 +299,14 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
           onPress={handleChatPress}
           disabled={disabled}
         >
-          <Text style={styles.actionIcon}>💬</Text>
+          <ChatIcon width={18} height={18} color="#666666" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionButton}
           onPress={handleNotificationPress}
           disabled={disabled}
         >
-          <Text style={styles.actionIcon}>🔔</Text>
+          <NotificationIcon width={18} height={18} color="#666666" />
         </TouchableOpacity>
       </View>
 
@@ -369,11 +380,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginRight: 12,
   },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: 8,
-    color: '#666666',
-  },
   searchInput: {
     flex: 1,
     fontSize: 16,
@@ -387,9 +393,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
-  },
-  actionIcon: {
-    fontSize: 18,
   },
   scrollView: {
     flex: 1,
@@ -444,9 +447,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 4,
   },
-  liveIconText: {
-    fontSize: 10,
-  },
   liveText: {
     color: 'white',
     fontSize: 12,
@@ -472,9 +472,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 4,
   },
-  eyeIcon: {
-    fontSize: 12,
-  },
   muteButton: {
     width: 24,
     height: 24,
@@ -483,9 +480,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 4,
-  },
-  muteIcon: {
-    fontSize: 12,
   },
   scheduledIndicator: {
     position: 'absolute',
@@ -500,9 +494,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bookmarkIcon: {
-    fontSize: 12,
-  },
   showInfo: {
     padding: 12,
   },
@@ -510,10 +501,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
-  },
-  userIcon: {
-    fontSize: 14,
-    marginRight: 6,
   },
   nickname: {
     fontSize: 14,
