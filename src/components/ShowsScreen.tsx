@@ -99,7 +99,7 @@ const ShowCard: React.FC<ShowCardProps> = ({
       disabled={disabled}
       activeOpacity={0.7}
     >
-      {/* Show image */}
+      {/* Background image */}
       <View style={styles.showImageContainer}>
         {show.imageUrl ? (
           <Image 
@@ -110,6 +110,10 @@ const ShowCard: React.FC<ShowCardProps> = ({
         ) : (
           <View style={styles.showImagePlaceholder} />
         )}
+      </View>
+
+      {/* Image overlay area */}
+      <View style={styles.imageOverlay}>
         {/* Live indicator or scheduled time */}
         {show.isLive ? (
           <>
@@ -475,12 +479,13 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   showImageContainer: {
-    width: '100%',
-    height: 120,
-    position: 'relative',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     overflow: 'hidden',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    borderRadius: 16,
   },
   showImage: {
     width: '100%',
@@ -490,6 +495,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#E0E0E0',
+  },
+  imageOverlay: {
+    height: 120,
+    position: 'relative',
   },
   liveBadge: {
     position: 'absolute',
