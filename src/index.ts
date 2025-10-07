@@ -4,4 +4,9 @@ export { BottomTabNavigation, BottomTabNavigationProps, TabConfig } from './Bott
 export { AuctionScreen, AuctionScreenProps, AuctionItem } from './components/AuctionScreen';
 export { PaymentScreen, PaymentScreenProps, PaymentMethod } from './components/PaymentScreen';
 export { default as TabNavigationExample } from './TabNavigationExample';
+// Shows/Auctions Components
+export { ShowsApiService, Show } from './services/ShowsApiService';
+export { default as ShowsScreen, ShowsScreenProps } from './components/ShowsScreen';
+export { default as ShowsScreenExample } from './examples/ShowsScreenExample';
+
 export default AnimatedSlider;
