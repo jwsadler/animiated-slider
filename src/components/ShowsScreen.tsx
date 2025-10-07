@@ -9,6 +9,7 @@ import {
   Alert,
   Dimensions,
   TextInput,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { logger } from 'react-native-logs';
@@ -114,7 +115,14 @@ const ShowCard: React.FC<ShowCardProps> = ({
       {/* Show info */}
       <View style={styles.showInfo}>
         <View style={styles.showHeader}>
-          <UserIcon width={14} height={14} color="#666666" />
+          {show.userIcon ? (
+            <Image 
+              source={{ uri: show.userIcon }} 
+              style={styles.userAvatar}
+            />
+          ) : (
+            <UserIcon width={14} height={14} color="#666666" />
+          )}
           <Text style={styles.nickname}>{show.nickname}</Text>
         </View>
         <Text style={styles.showTitle} numberOfLines={2}>
@@ -501,6 +509,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+  },
+  userAvatar: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    marginRight: 6,
   },
   nickname: {
     fontSize: 14,

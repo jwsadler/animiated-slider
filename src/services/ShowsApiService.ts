@@ -19,6 +19,7 @@ export interface Show {
   id: string;
   title: string;
   nickname: string;
+  userIcon?: string; // Optional user avatar/icon URL
   isLive: boolean;
   viewerCount: number;
   scheduledTime: string | null;
