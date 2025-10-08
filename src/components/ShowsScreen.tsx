@@ -11,7 +11,6 @@ import {
   TextInput,
   Image,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { logger } from 'react-native-logs';
 import Video from 'react-native-video';
 import { ShowsApiService, Show } from '../services/ShowsApiService';
@@ -347,7 +346,7 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header with search and action buttons */}
       <View style={styles.header}>
         <View style={styles.searchContainer}>
@@ -420,7 +419,7 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
