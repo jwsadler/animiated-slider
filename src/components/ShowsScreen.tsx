@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { logger } from 'react-native-logs';
+import Video from 'react-native-video';
 import { ShowsApiService, Show } from '../services/ShowsApiService';
 
 import {
@@ -99,9 +100,21 @@ const ShowCard: React.FC<ShowCardProps> = ({
       disabled={disabled}
       activeOpacity={0.7}
     >
-      {/* Background image */}
+      {/* Background media */}
       <View style={styles.showImageContainer}>
-        {show.imageUrl ? (
+        {show.videoUrl ? (
+          <Video
+            source={{ uri: show.videoUrl }}
+            style={styles.showImage}
+            resizeMode="cover"
+            repeat={true}
+            muted={true}
+            paused={false}
+            playInBackground={false}
+            playWhenInactive={false}
+            ignoreSilentSwitch="ignore"
+          />
+        ) : show.imageUrl ? (
           <Image 
             source={{ uri: show.imageUrl }} 
             style={styles.showImage}

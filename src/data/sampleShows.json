@@ -9,6 +9,7 @@
     "scheduledTime": null,
     "startDate": "2024-10-07T10:00:00Z",
     "imageUrl": "https://example.com/show1.jpg",
+    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     "description": "Amazing deals on top athletic brands. Don't miss out on these incredible prices!",
     "category": "Sports & Fashion",
     "tags": ["nike", "adidas", "puma", "asics", "shoes", "sports"]
@@ -23,6 +24,7 @@
     "scheduledTime": null,
     "startDate": "2024-10-07T09:30:00Z",
     "imageUrl": "https://example.com/show2.jpg",
+    "videoUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
     "description": "Rare vintage electronics and modern gadgets at unbeatable prices.",
     "category": "Electronics",
     "tags": ["electronics", "vintage", "gadgets", "tech"]
@@ -168,4 +170,3 @@
     "tags": ["kitchen", "cooking", "chef", "equipment", "utensils"]
   }
 ]
-

@@ -25,6 +25,7 @@ export interface Show {
   scheduledTime: string | null;
   startDate: string; // ISO date string for sorting
   imageUrl: string;
+  videoUrl?: string; // Optional video URL for live feeds
   description: string;
   category: string;
   tags: string[];
