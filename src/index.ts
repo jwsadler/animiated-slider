@@ -3,7 +3,16 @@ export { VerticalAnimatedSlider, VerticalAnimatedSliderProps } from './VerticalA
 export { BottomTabNavigation, BottomTabNavigationProps, TabConfig } from './BottomTabNavigation';
 export { AuctionScreen, AuctionScreenProps, AuctionItem } from './components/AuctionScreen';
 export { PaymentScreen, PaymentScreenProps, PaymentMethod } from './components/PaymentScreen';
+
+// Export tab navigation examples
 export { default as TabNavigationExample } from './TabNavigationExample';
+export { default as TabNavigationWithSVGExample } from './TabNavigationWithSVGExample';
+export { default as TabNavigationIconExamples } from './TabNavigationIconExamples';
+
+// Export icon components
+export * from './components/TabIcons';
+export * from './components/DynamicTabIcons';
+
 // Animated Slider Button
 export { default as AnimatedSliderButton, AnimatedSliderButtonProps } from './components/AnimatedSliderButton';
 export { default as AnimatedSliderButtonExample } from './examples/AnimatedSliderButtonExample';

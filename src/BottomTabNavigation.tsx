@@ -13,7 +13,7 @@ import {
 export interface TabConfig {
   id: string;
   label: string;
-  icon: string; // You can replace this with React.ReactNode for custom icons
+  icon: React.ReactElement; // Only supports SVG React elements
   component: React.ComponentType<any>;
 }
 
@@ -65,7 +65,7 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
     <View style={[styles.container, containerStyle]}>
       {/* Content Area */}
       <View style={[styles.content, contentStyle]}>
-        {ActiveComponent && <ActiveComponent />}
+        {ActiveComponent ? <ActiveComponent /> : null}
       </View>
 
       {/* Tab Bar */}
@@ -86,13 +86,9 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
               activeOpacity={0.7}
             >
               {/* Icon */}
-              <Text style={[
-                styles.icon,
-                { color },
-                iconStyle
-              ]}>
+              <View style={[styles.iconContainer]}>
                 {tab.icon}
-              </Text>
+              </View>
 
               {/* Label */}
               <Text style={[
@@ -100,7 +96,7 @@ export const BottomTabNavigation: React.FC<BottomTabNavigationProps> = ({
                 { color },
                 labelStyle
               ]}>
-                {tab.label}
+                {tab.label || ''}
               </Text>
             </TouchableOpacity>
           );
@@ -140,9 +136,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 5,
   },
-  icon: {
-    fontSize: 24,
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 4,
+    height: 24,
+    width: 24,
   },
   label: {
     fontSize: 12,
