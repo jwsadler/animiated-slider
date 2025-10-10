@@ -53,19 +53,25 @@ export interface ShowsScreenProps {
   shows?: Show[];
   loading?: boolean;
   disabled?: boolean;
+  variant?: ShowCardVariant;
 }
+
+// Show card layout variants
+export type ShowCardVariant = 'grid' | 'fullWidth' | 'horizontal';
 
 // Individual show card component
 interface ShowCardProps {
   show: Show;
   onPress: (show: Show) => void;
   disabled?: boolean;
+  variant?: ShowCardVariant;
 }
 
 const ShowCard: React.FC<ShowCardProps> = ({
   show,
   onPress,
   disabled = false,
+  variant = 'grid',
 }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -89,43 +95,75 @@ const ShowCard: React.FC<ShowCardProps> = ({
     log.debug('🔖 [ShowCard] Bookmark toggled:', !isBookmarked ? 'bookmarked' : 'unbookmarked');
   };
 
-  return (
-    <TouchableOpacity
-      style={[
-        styles.showCard,
-        disabled && styles.disabledCard,
-      ]}
-      onPress={handlePress}
-      disabled={disabled}
-      activeOpacity={0.7}
-    >
-      {/* Background media */}
-      <View style={styles.showImageContainer}>
-        {show.videoUrl ? (
-          <Video
-            source={{ uri: show.videoUrl }}
-            style={styles.showImage}
-            resizeMode="cover"
-            repeat={true}
-            muted={true}
-            paused={false}
-            playInBackground={false}
-            playWhenInactive={false}
-            ignoreSilentSwitch="ignore"
-          />
-        ) : show.imageUrl ? (
-          <Image 
-            source={{ uri: show.imageUrl }} 
-            style={styles.showImage}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.showImagePlaceholder} />
-        )}
-      </View>
+  // Get card styles based on variant
+  const getCardStyles = () => {
+    switch (variant) {
+      case 'fullWidth':
+        return [styles.showCard, styles.fullWidthCard];
+      case 'horizontal':
+        return [styles.showCard, styles.horizontalCard];
+      default:
+        return [styles.showCard];
+    }
+  };
+
+  // Get image container styles based on variant
+  const getImageContainerStyles = () => {
+    switch (variant) {
+      case 'horizontal':
+        return [styles.showImageContainer, styles.horizontalImageContainer];
+      default:
+        return [styles.showImageContainer];
+    }
+  };
+
+  // Get image overlay styles based on variant
+  const getImageOverlayStyles = () => {
+    switch (variant) {
+      case 'horizontal':
+        return [styles.imageOverlay, styles.horizontalImageOverlay];
+      default:
+        return [styles.imageOverlay];
+    }
+  };
+
+  // Get show info styles based on variant
+  const getShowInfoStyles = () => {
+    switch (variant) {
+      case 'horizontal':
+        return [styles.showInfo, styles.horizontalShowInfo];
+      default:
+        return [styles.showInfo];
+    }
+  };
+
+  // Render media content
+  const renderMedia = () => (
+    <View style={getImageContainerStyles()}>
+      {show.videoUrl ? (
+        <Video
+          source={{ uri: show.videoUrl }}
+          style={styles.showImage}
+          resizeMode="cover"
+          repeat={true}
+          muted={true}
+          paused={false}
+          playInBackground={false}
+          playWhenInactive={false}
+          ignoreSilentSwitch="ignore"
+        />
+      ) : show.imageUrl ? (
+        <Image 
+          source={{ uri: show.imageUrl }} 
+          style={styles.showImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={styles.showImagePlaceholder} />
+      )}
 
       {/* Image overlay area */}
-      <View style={styles.imageOverlay}>
+      <View style={getImageOverlayStyles()}>
         {/* Live indicator or scheduled time */}
         {show.isLive ? (
           <>
@@ -168,27 +206,53 @@ const ShowCard: React.FC<ShowCardProps> = ({
           </>
         )}
       </View>
+    </View>
+  );
 
-      {/* Show info */}
-      <View style={styles.showInfo}>
-        <View style={styles.showHeader}>
-          {show.userIcon ? (
-            <Image 
-              source={{ uri: show.userIcon }} 
-              style={styles.userAvatar}
-            />
-          ) : (
-            <UserIcon width={14} height={14} color="#666666" />
-          )}
-          <Text style={styles.nickname}>{show.nickname}</Text>
-        </View>
-        <Text style={styles.showTitle} numberOfLines={2}>
-          {show.title}
-        </Text>
-        {show.scheduledTime && (
-          <Text style={styles.scheduledTime}>{show.scheduledTime}</Text>
+  // Render show info content
+  const renderShowInfo = () => (
+    <View style={getShowInfoStyles()}>
+      <View style={styles.showHeader}>
+        {show.userIcon ? (
+          <Image 
+            source={{ uri: show.userIcon }} 
+            style={styles.userAvatar}
+          />
+        ) : (
+          <UserIcon width={14} height={14} color="#666666" />
         )}
+        <Text style={styles.nickname}>{show.nickname}</Text>
       </View>
+      <Text style={styles.showTitle} numberOfLines={variant === 'horizontal' ? 3 : 2}>
+        {show.title}
+      </Text>
+      {show.scheduledTime && (
+        <Text style={styles.scheduledTime}>{show.scheduledTime}</Text>
+      )}
+    </View>
+  );
+
+  return (
+    <TouchableOpacity
+      style={[
+        ...getCardStyles(),
+        disabled && styles.disabledCard,
+      ]}
+      onPress={handlePress}
+      disabled={disabled}
+      activeOpacity={0.7}
+    >
+      {variant === 'horizontal' ? (
+        <>
+          {renderMedia()}
+          {renderShowInfo()}
+        </>
+      ) : (
+        <>
+          {renderMedia()}
+          {renderShowInfo()}
+        </>
+      )}
     </TouchableOpacity>
   );
 };
@@ -203,6 +267,7 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
   shows: propShows,
   loading: propLoading = false,
   disabled = false,
+  variant = 'grid',
 }) => {
   const [shows, setShows] = useState<Show[]>(propShows || []);
   const [filteredShows, setFilteredShows] = useState<Show[]>([]);
@@ -317,32 +382,48 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
     onNotificationPress?.();
   };
 
-  // Render shows in 2-column grid
+  // Render shows based on variant
   const renderShows = () => {
-    const rows = [];
-    for (let i = 0; i < filteredShows.length; i += 2) {
-      const leftShow = filteredShows[i];
-      const rightShow = filteredShows[i + 1];
+    if (variant === 'grid') {
+      // Render in 2-column grid
+      const rows = [];
+      for (let i = 0; i < filteredShows.length; i += 2) {
+        const leftShow = filteredShows[i];
+        const rightShow = filteredShows[i + 1];
 
-      rows.push(
-        <View key={`row-${i}`} style={styles.showRow}>
-          <ShowCard
-            show={leftShow}
-            onPress={handleShowPress}
-            disabled={disabled || loading}
-          />
-          {rightShow && (
+        rows.push(
+          <View key={`row-${i}`} style={styles.showRow}>
             <ShowCard
-              show={rightShow}
+              show={leftShow}
               onPress={handleShowPress}
               disabled={disabled || loading}
+              variant={variant}
             />
-          )}
-          {!rightShow && <View style={styles.showCard} />}
-        </View>
-      );
+            {rightShow && (
+              <ShowCard
+                show={rightShow}
+                onPress={handleShowPress}
+                disabled={disabled || loading}
+                variant={variant}
+              />
+            )}
+            {!rightShow && <View style={styles.showCard} />}
+          </View>
+        );
+      }
+      return rows;
+    } else {
+      // Render single column for fullWidth and horizontal variants
+      return filteredShows.map((show) => (
+        <ShowCard
+          key={show.id}
+          show={show}
+          onPress={handleShowPress}
+          disabled={disabled || loading}
+          variant={variant}
+        />
+      ));
     }
-    return rows;
   };
 
   return (
@@ -487,6 +568,16 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
+  fullWidthCard: {
+    width: width - (CARD_MARGIN * 2), // Full width minus margins
+    marginBottom: CARD_MARGIN,
+  },
+  horizontalCard: {
+    width: width - (CARD_MARGIN * 2), // Full width minus margins
+    flexDirection: 'row',
+    height: 120,
+    marginBottom: CARD_MARGIN,
+  },
   disabledCard: {
     opacity: 0.5,
   },
@@ -498,6 +589,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     overflow: 'hidden',
     borderRadius: 16,
+  },
+  horizontalImageContainer: {
+    position: 'relative',
+    width: '25%', // 1/4 of card width
+    height: '100%',
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
   },
   showImage: {
     width: '100%',
@@ -511,6 +611,13 @@ const styles = StyleSheet.create({
   imageOverlay: {
     height: 120,
     position: 'relative',
+  },
+  horizontalImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   liveBadge: {
     position: 'absolute',
@@ -585,6 +692,11 @@ const styles = StyleSheet.create({
   },
   showInfo: {
     padding: 12,
+  },
+  horizontalShowInfo: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'center',
   },
   showHeader: {
     flexDirection: 'row',
