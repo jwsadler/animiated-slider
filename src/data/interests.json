@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "name": "Photography",
+    "description": "Capturing moments and creating visual stories through the lens",
+    "imageUrl": "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400"
+  },
+  {
+    "id": "2",
+    "name": "Cooking",
+    "description": "Exploring flavors and creating delicious meals from around the world",
+    "imageUrl": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400"
+  },
+  {
+    "id": "3",
+    "name": "Hiking",
+    "description": "Exploring nature trails and enjoying outdoor adventures",
+    "imageUrl": "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400"
+  },
+  {
+    "id": "4",
+    "name": "Reading",
+    "description": "Diving into books and expanding knowledge through literature",
+    "imageUrl": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400"
+  },
+  {
+    "id": "5",
+    "name": "Gaming",
+    "description": "Playing video games and exploring virtual worlds",
+    "imageUrl": "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=400"
+  },
+  {
+    "id": "6",
+    "name": "Music",
+    "description": "Creating, listening to, and appreciating various musical genres",
+    "imageUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400"
+  },
+  {
+    "id": "7",
+    "name": "Fitness",
+    "description": "Staying active and maintaining physical health through exercise",
+    "imageUrl": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400"
+  },
+  {
+    "id": "8",
+    "name": "Travel",
+    "description": "Exploring new places and experiencing different cultures",
+    "imageUrl": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400"
+  },
+  {
+    "id": "9",
+    "name": "Art & Drawing",
+    "description": "Creating visual art and expressing creativity through various mediums",
+    "imageUrl": "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400"
+  },
+  {
+    "id": "10",
+    "name": "Gardening",
+    "description": "Growing plants and creating beautiful outdoor spaces",
+    "imageUrl": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400"
+  }
+]
