@@ -11,8 +11,8 @@ import {
   TextInput,
   Image,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { logger } from 'react-native-logs';
+import Video from 'react-native-video';
 import { ShowsApiService, Show } from '../services/ShowsApiService';
 
 import {
@@ -67,11 +67,26 @@ const ShowCard: React.FC<ShowCardProps> = ({
   onPress,
   disabled = false,
 }) => {
+  const [isMuted, setIsMuted] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
   const handlePress = () => {
     if (!disabled) {
       log.debug('🎯 [ShowCard] Show pressed:', show.title);
       onPress(show);
     }
+  };
+
+  const handleVolumeToggle = (e: any) => {
+    e.stopPropagation(); // Prevent card press
+    setIsMuted(!isMuted);
+    log.debug('🔊 [ShowCard] Volume toggled:', !isMuted ? 'muted' : 'unmuted');
+  };
+
+  const handleBookmarkToggle = (e: any) => {
+    e.stopPropagation(); // Prevent card press
+    setIsBookmarked(!isBookmarked);
+    log.debug('🔖 [ShowCard] Bookmark toggled:', !isBookmarked ? 'bookmarked' : 'unbookmarked');
   };
 
   return (
@@ -84,31 +99,73 @@ const ShowCard: React.FC<ShowCardProps> = ({
       disabled={disabled}
       activeOpacity={0.7}
     >
-      {/* Show image placeholder */}
-      <View style={styles.showImagePlaceholder}>
-        {/* Live indicator or bookmark */}
+      {/* Background media */}
+      <View style={styles.showImageContainer}>
+        {show.videoUrl ? (
+          <Video
+            source={{ uri: show.videoUrl }}
+            style={styles.showImage}
+            resizeMode="cover"
+            repeat={true}
+            muted={true}
+            paused={false}
+            playInBackground={false}
+            playWhenInactive={false}
+            ignoreSilentSwitch="ignore"
+          />
+        ) : show.imageUrl ? (
+          <Image 
+            source={{ uri: show.imageUrl }} 
+            style={styles.showImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.showImagePlaceholder} />
+        )}
+      </View>
+
+      {/* Image overlay area */}
+      <View style={styles.imageOverlay}>
+        {/* Live indicator or scheduled time */}
         {show.isLive ? (
-          <View style={styles.liveIndicator}>
-            <View style={styles.liveIcon}>
-              {/* Sound SVG placeholder - you can replace with actual SVG */}
-              <SoundIcon width={12} height={12} color="#FFFFFF" />
-            </View>
-            <Text style={styles.liveText}>live</Text>
-            <View style={styles.viewerCount}>
+          <>
+            {/* Live badge */}
+            <View style={styles.liveBadge}>
+              <Text style={styles.liveText}>live</Text>
+              <Text style={styles.liveDot}>•</Text>
               <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
               <EyeIcon width={12} height={12} color="#FFFFFF" />
             </View>
-            {/* Mute button */}
-            <TouchableOpacity style={styles.muteButton}>
-              <MuteIcon width={12} height={12} color="#FFFFFF" />
+            {/* Volume toggle button */}
+            <TouchableOpacity 
+              style={[styles.volumeButton, isMuted && styles.mutedButton]} 
+              onPress={handleVolumeToggle}
+            >
+              {isMuted ? (
+                <MuteIcon width={16} height={16} color="#000000" />
+              ) : (
+                <SoundIcon width={16} height={16} color="#000000" />
+              )}
             </TouchableOpacity>
-          </View>
+          </>
         ) : (
-          <View style={styles.scheduledIndicator}>
-            <TouchableOpacity style={styles.bookmarkButton}>
-              <BookmarkIcon width={12} height={12} color="#FFFFFF" />
+          <>
+            {/* Scheduled time badge */}
+            <View style={styles.scheduledBadge}>
+              <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
+            </View>
+            {/* Bookmark toggle button */}
+            <TouchableOpacity 
+              style={[styles.bookmarkButton, isBookmarked && styles.bookmarkedButton]} 
+              onPress={handleBookmarkToggle}
+            >
+              <BookmarkIcon 
+                width={16} 
+                height={16} 
+                color="#000000"
+              />
             </TouchableOpacity>
-          </View>
+          </>
         )}
       </View>
 
@@ -289,7 +346,7 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header with search and action buttons */}
       <View style={styles.header}>
         <View style={styles.searchContainer}>
@@ -362,7 +419,7 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -433,46 +490,50 @@ const styles = StyleSheet.create({
   disabledCard: {
     opacity: 0.5,
   },
+  showImageContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: 'hidden',
+    borderRadius: 16,
+  },
+  showImage: {
+    width: '100%',
+    height: '100%',
+  },
   showImagePlaceholder: {
-    height: 120,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#E0E0E0',
+  },
+  imageOverlay: {
+    height: 120,
     position: 'relative',
   },
-  liveIndicator: {
+  liveBadge: {
     position: 'absolute',
-    top: 8,
-    left: 8,
-    right: 8,
+    top: 12,
+    left: 12,
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  liveIcon: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   liveText: {
     color: 'white',
     fontSize: 12,
     fontWeight: '600',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginRight: 4,
+    marginRight: 6,
   },
-  viewerCount: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    flex: 1,
+  liveDot: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+    marginRight: 6,
   },
   viewerCountText: {
     color: 'white',
@@ -480,27 +541,47 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginRight: 4,
   },
-  muteButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  volumeButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 4,
   },
-  scheduledIndicator: {
+  mutedButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  },
+  scheduledBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 12,
+    left: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  scheduledText: {
+    color: '#000000',
+    fontSize: 12,
+    fontWeight: '600',
   },
   bookmarkButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  bookmarkedButton: {
+    backgroundColor: 'rgba(255, 215, 0, 0.9)', // Gold background when bookmarked
   },
   showInfo: {
     padding: 12,

@@ -23,7 +23,9 @@ export interface Show {
   isLive: boolean;
   viewerCount: number;
   scheduledTime: string | null;
+  startDate: string; // ISO date string for sorting
   imageUrl: string;
+  videoUrl?: string; // Optional video URL for live feeds
   description: string;
   category: string;
   tags: string[];
@@ -62,9 +64,16 @@ export class ShowsApiService {
       // Load shows from local JSON file
       const shows: Show[] = sampleShows as Show[];
       
-      log.info('✅ [ShowsApiService] Shows loaded successfully:', shows.length);
+      // Sort shows by startDate (earliest first)
+      const sortedShows = shows.sort((a, b) => {
+        const dateA = new Date(a.startDate);
+        const dateB = new Date(b.startDate);
+        return dateA.getTime() - dateB.getTime();
+      });
+      
+      log.info('✅ [ShowsApiService] Shows loaded and sorted successfully:', sortedShows.length);
       onLoading?.(false);
-      onSuccess(shows);
+      onSuccess(sortedShows);
 
     } catch (error) {
       log.error('❌ [ShowsApiService] Failed to fetch shows:', error);
