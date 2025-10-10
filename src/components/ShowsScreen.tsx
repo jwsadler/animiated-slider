@@ -9,22 +9,20 @@ import {
   Alert,
   Dimensions,
   TextInput,
-  Image,
 } from 'react-native';
 import { logger } from 'react-native-logs';
-import Video from 'react-native-video';
 import { ShowsApiService, Show } from '../services/ShowsApiService';
 
 import {
   SearchIcon,
   ChatIcon,
   NotificationIcon,
-  SoundIcon,
-  MuteIcon,
-  BookmarkIcon,
-  EyeIcon,
-  UserIcon,
 } from './icons/ShowsIcons';
+
+import { ShowCardVariant } from './ShowCardBase';
+import ShowCardGrid from './ShowCardGrid';
+import ShowCardFullWidth from './ShowCardFullWidth';
+import ShowCardHorizontal from './ShowCardHorizontal';
 
 // Configure logger
 const log = logger.createLogger({
@@ -56,249 +54,24 @@ export interface ShowsScreenProps {
   variant?: ShowCardVariant;
 }
 
-// Show card layout variants
-export type ShowCardVariant = 'grid' | 'fullWidth' | 'horizontal';
+// Export the ShowCardVariant type for external use
+export { ShowCardVariant } from './ShowCardBase';
 
-// Individual show card component
-interface ShowCardProps {
+// Component selector function to render the appropriate ShowCard variant
+const ShowCard: React.FC<{
   show: Show;
   onPress: (show: Show) => void;
   disabled?: boolean;
   variant?: ShowCardVariant;
-}
-
-const ShowCard: React.FC<ShowCardProps> = ({
-  show,
-  onPress,
-  disabled = false,
-  variant = 'grid',
-}) => {
-  const [isMuted, setIsMuted] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-
-  const handlePress = () => {
-    if (!disabled) {
-      log.debug('🎯 [ShowCard] Show pressed:', show.title);
-      onPress(show);
-    }
-  };
-
-  const handleVolumeToggle = (e: any) => {
-    e.stopPropagation(); // Prevent card press
-    setIsMuted(!isMuted);
-    log.debug('🔊 [ShowCard] Volume toggled:', !isMuted ? 'muted' : 'unmuted');
-  };
-
-  const handleBookmarkToggle = (e: any) => {
-    e.stopPropagation(); // Prevent card press
-    setIsBookmarked(!isBookmarked);
-    log.debug('🔖 [ShowCard] Bookmark toggled:', !isBookmarked ? 'bookmarked' : 'unbookmarked');
-  };
-
-  // Get card styles based on variant
-  const getCardStyles = () => {
-    switch (variant) {
-      case 'fullWidth':
-        return [styles.showCard, styles.fullWidthCard];
-      case 'horizontal':
-        return [styles.showCard, styles.horizontalCard];
-      default:
-        return [styles.showCard];
-    }
-  };
-
-  // Get image container styles based on variant
-  const getImageContainerStyles = () => {
-    switch (variant) {
-      case 'horizontal':
-        return [styles.showImageContainer, styles.horizontalImageContainer];
-      default:
-        return [styles.showImageContainer];
-    }
-  };
-
-  // Get image overlay styles based on variant
-  const getImageOverlayStyles = () => {
-    switch (variant) {
-      case 'horizontal':
-        return [styles.imageOverlay, styles.horizontalImageOverlay];
-      default:
-        return [styles.imageOverlay];
-    }
-  };
-
-  // Get show info styles based on variant
-  const getShowInfoStyles = () => {
-    switch (variant) {
-      case 'horizontal':
-        return [styles.showInfo, styles.horizontalShowInfo];
-      default:
-        return [styles.showInfo];
-    }
-  };
-
-  // Render media content
-  const renderMedia = () => (
-    <View style={getImageContainerStyles()}>
-      {show.videoUrl ? (
-        <Video
-          source={{ uri: show.videoUrl }}
-          style={styles.showImage}
-          resizeMode="cover"
-          repeat={true}
-          muted={true}
-          paused={false}
-          playInBackground={false}
-          playWhenInactive={false}
-          ignoreSilentSwitch="ignore"
-        />
-      ) : show.imageUrl ? (
-        <Image 
-          source={{ uri: show.imageUrl }} 
-          style={styles.showImage}
-          resizeMode="cover"
-        />
-      ) : (
-        <View style={styles.showImagePlaceholder} />
-      )}
-
-      {/* Image overlay area */}
-      <View style={getImageOverlayStyles()}>
-        {/* For horizontal layout, only show volume button, badges are positioned at card level */}
-        {variant === 'horizontal' ? (
-          <>
-            {show.isLive && (
-              <TouchableOpacity 
-                style={[styles.volumeButton, isMuted && styles.mutedButton]} 
-                onPress={handleVolumeToggle}
-              >
-                {isMuted ? (
-                  <MuteIcon width={16} height={16} color="#000000" />
-                ) : (
-                  <SoundIcon width={16} height={16} color="#000000" />
-                )}
-              </TouchableOpacity>
-            )}
-          </>
-        ) : (
-          /* For grid and fullWidth layouts, show all overlay elements */
-          <>
-            {show.isLive ? (
-              <>
-                {/* Live badge */}
-                <View style={styles.liveBadge}>
-                  <Text style={styles.liveText}>live</Text>
-                  <Text style={styles.liveDot}>•</Text>
-                  <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
-                  <EyeIcon width={12} height={12} color="#FFFFFF" />
-                </View>
-                {/* Volume toggle button */}
-                <TouchableOpacity 
-                  style={[styles.volumeButton, isMuted && styles.mutedButton]} 
-                  onPress={handleVolumeToggle}
-                >
-                  {isMuted ? (
-                    <MuteIcon width={16} height={16} color="#000000" />
-                  ) : (
-                    <SoundIcon width={16} height={16} color="#000000" />
-                  )}
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                {/* Scheduled time badge */}
-                <View style={styles.scheduledBadge}>
-                  <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
-                </View>
-                {/* Bookmark toggle button */}
-                <TouchableOpacity 
-                  style={[styles.bookmarkButton, isBookmarked && styles.bookmarkedButton]} 
-                  onPress={handleBookmarkToggle}
-                >
-                  <BookmarkIcon 
-                    width={16} 
-                    height={16} 
-                    color="#000000"
-                  />
-                </TouchableOpacity>
-              </>
-            )}
-          </>
-        )}
-      </View>
-    </View>
-  );
-
-  // Render show info content
-  const renderShowInfo = () => (
-    <View style={getShowInfoStyles()}>
-      <View style={styles.showHeader}>
-        {show.userIcon ? (
-          <Image 
-            source={{ uri: show.userIcon }} 
-            style={styles.userAvatar}
-          />
-        ) : (
-          <UserIcon width={14} height={14} color="#666666" />
-        )}
-        <Text style={styles.nickname}>{show.nickname}</Text>
-      </View>
-      <Text style={styles.showTitle} numberOfLines={variant === 'horizontal' ? 3 : 2}>
-        {show.title}
-      </Text>
-      {show.scheduledTime && (
-        <Text style={styles.scheduledTime}>{show.scheduledTime}</Text>
-      )}
-    </View>
-  );
-
-  return (
-    <TouchableOpacity
-      style={[
-        ...getCardStyles(),
-        disabled && styles.disabledCard,
-      ]}
-      onPress={handlePress}
-      disabled={disabled}
-      activeOpacity={0.7}
-    >
-      {variant === 'horizontal' ? (
-        <>
-          {renderMedia()}
-          {renderShowInfo()}
-          {/* Bookmark button positioned at top right of entire card for horizontal */}
-          <TouchableOpacity 
-            style={[styles.bookmarkButton, styles.horizontalBookmarkButton]} 
-            onPress={handleBookmarkToggle}
-          >
-            <BookmarkIcon 
-              width={16} 
-              height={16} 
-              color="#000000"
-            />
-          </TouchableOpacity>
-          {/* Live/scheduled badge positioned at bottom right for horizontal */}
-          {show.isLive ? (
-            <View style={[styles.liveBadge, styles.horizontalLiveBadge]}>
-              <Text style={styles.liveText}>live</Text>
-              <Text style={styles.liveDot}>•</Text>
-              <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
-              <EyeIcon width={12} height={12} color="#FFFFFF" />
-            </View>
-          ) : (
-            <View style={[styles.scheduledBadge, styles.horizontalScheduledBadge]}>
-              <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
-            </View>
-          )}
-        </>
-      ) : (
-        <>
-          {renderMedia()}
-          {renderShowInfo()}
-        </>
-      )}
-    </TouchableOpacity>
-  );
+}> = ({ show, onPress, disabled = false, variant = 'grid' }) => {
+  switch (variant) {
+    case 'fullWidth':
+      return <ShowCardFullWidth show={show} onPress={onPress} disabled={disabled} />;
+    case 'horizontal':
+      return <ShowCardHorizontal show={show} onPress={onPress} disabled={disabled} />;
+    default:
+      return <ShowCardGrid show={show} onPress={onPress} disabled={disabled} />;
+  }
 };
 
 // Main Shows screen component
