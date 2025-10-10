@@ -164,45 +164,65 @@ const ShowCard: React.FC<ShowCardProps> = ({
 
       {/* Image overlay area */}
       <View style={getImageOverlayStyles()}>
-        {/* Live indicator or scheduled time */}
-        {show.isLive ? (
+        {/* For horizontal layout, only show volume button, badges are positioned at card level */}
+        {variant === 'horizontal' ? (
           <>
-            {/* Live badge */}
-            <View style={styles.liveBadge}>
-              <Text style={styles.liveText}>live</Text>
-              <Text style={styles.liveDot}>•</Text>
-              <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
-              <EyeIcon width={12} height={12} color="#FFFFFF" />
-            </View>
-            {/* Volume toggle button */}
-            <TouchableOpacity 
-              style={[styles.volumeButton, isMuted && styles.mutedButton]} 
-              onPress={handleVolumeToggle}
-            >
-              {isMuted ? (
-                <MuteIcon width={16} height={16} color="#000000" />
-              ) : (
-                <SoundIcon width={16} height={16} color="#000000" />
-              )}
-            </TouchableOpacity>
+            {show.isLive && (
+              <TouchableOpacity 
+                style={[styles.volumeButton, isMuted && styles.mutedButton]} 
+                onPress={handleVolumeToggle}
+              >
+                {isMuted ? (
+                  <MuteIcon width={16} height={16} color="#000000" />
+                ) : (
+                  <SoundIcon width={16} height={16} color="#000000" />
+                )}
+              </TouchableOpacity>
+            )}
           </>
         ) : (
+          /* For grid and fullWidth layouts, show all overlay elements */
           <>
-            {/* Scheduled time badge */}
-            <View style={styles.scheduledBadge}>
-              <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
-            </View>
-            {/* Bookmark toggle button */}
-            <TouchableOpacity 
-              style={[styles.bookmarkButton, isBookmarked && styles.bookmarkedButton]} 
-              onPress={handleBookmarkToggle}
-            >
-              <BookmarkIcon 
-                width={16} 
-                height={16} 
-                color="#000000"
-              />
-            </TouchableOpacity>
+            {show.isLive ? (
+              <>
+                {/* Live badge */}
+                <View style={styles.liveBadge}>
+                  <Text style={styles.liveText}>live</Text>
+                  <Text style={styles.liveDot}>•</Text>
+                  <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
+                  <EyeIcon width={12} height={12} color="#FFFFFF" />
+                </View>
+                {/* Volume toggle button */}
+                <TouchableOpacity 
+                  style={[styles.volumeButton, isMuted && styles.mutedButton]} 
+                  onPress={handleVolumeToggle}
+                >
+                  {isMuted ? (
+                    <MuteIcon width={16} height={16} color="#000000" />
+                  ) : (
+                    <SoundIcon width={16} height={16} color="#000000" />
+                  )}
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                {/* Scheduled time badge */}
+                <View style={styles.scheduledBadge}>
+                  <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
+                </View>
+                {/* Bookmark toggle button */}
+                <TouchableOpacity 
+                  style={[styles.bookmarkButton, isBookmarked && styles.bookmarkedButton]} 
+                  onPress={handleBookmarkToggle}
+                >
+                  <BookmarkIcon 
+                    width={16} 
+                    height={16} 
+                    color="#000000"
+                  />
+                </TouchableOpacity>
+              </>
+            )}
           </>
         )}
       </View>
@@ -246,6 +266,30 @@ const ShowCard: React.FC<ShowCardProps> = ({
         <>
           {renderMedia()}
           {renderShowInfo()}
+          {/* Bookmark button positioned at top right of entire card for horizontal */}
+          <TouchableOpacity 
+            style={[styles.bookmarkButton, styles.horizontalBookmarkButton]} 
+            onPress={handleBookmarkToggle}
+          >
+            <BookmarkIcon 
+              width={16} 
+              height={16} 
+              color="#000000"
+            />
+          </TouchableOpacity>
+          {/* Live/scheduled badge positioned at bottom right for horizontal */}
+          {show.isLive ? (
+            <View style={[styles.liveBadge, styles.horizontalLiveBadge]}>
+              <Text style={styles.liveText}>live</Text>
+              <Text style={styles.liveDot}>•</Text>
+              <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
+              <EyeIcon width={12} height={12} color="#FFFFFF" />
+            </View>
+          ) : (
+            <View style={[styles.scheduledBadge, styles.horizontalScheduledBadge]}>
+              <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
+            </View>
+          )}
         </>
       ) : (
         <>
@@ -577,6 +621,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 120,
     marginBottom: CARD_MARGIN,
+    backgroundColor: '#FFFFFF', // White background for horizontal cards
   },
   disabledCard: {
     opacity: 0.5,
@@ -593,11 +638,12 @@ const styles = StyleSheet.create({
   horizontalImageContainer: {
     position: 'relative',
     width: '25%', // 1/4 of card width
-    height: '100%',
+    aspectRatio: 16 / 9, // Maintain aspect ratio
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
+    overflow: 'hidden',
   },
   showImage: {
     width: '100%',
@@ -676,6 +722,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  horizontalLiveBadge: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  horizontalScheduledBadge: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
   bookmarkButton: {
     position: 'absolute',
     top: 12,
@@ -689,6 +755,17 @@ const styles = StyleSheet.create({
   },
   bookmarkedButton: {
     backgroundColor: 'rgba(255, 215, 0, 0.9)', // Gold background when bookmarked
+  },
+  horizontalBookmarkButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   showInfo: {
     padding: 12,
