@@ -29,15 +29,16 @@ const ShowCardHorizontal: React.FC<ShowCardBaseProps> = ({
   } = useShowCardInteractions(show, onPress, disabled);
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.showCard,
-        disabled && styles.disabledCard,
-      ]}
-      onPress={handlePress}
-      disabled={disabled}
-      activeOpacity={0.7}
-    >
+    <View style={styles.cardContainer}>
+      <TouchableOpacity
+        style={[
+          styles.showCard,
+          disabled && styles.disabledCard,
+        ]}
+        onPress={handlePress}
+        disabled={disabled}
+        activeOpacity={0.7}
+      >
       {/* Left side - Media (25% width) */}
       <View style={styles.mediaContainer}>
         {show.videoUrl ? (
@@ -127,20 +128,34 @@ const ShowCardHorizontal: React.FC<ShowCardBaseProps> = ({
           <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
         </View>
       )}
-    </TouchableOpacity>
+      </TouchableOpacity>
+      
+      {/* Full-width separator line */}
+      <View style={styles.separatorLine} />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  cardContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: CARD_MARGIN,
+  },
   showCard: {
     width: width - (CARD_MARGIN * 2), // Full width minus margins
     height: CARD_HEIGHT,
     backgroundColor: '#FFFFFF', // White background
     borderRadius: 16,
     overflow: 'hidden',
-    marginBottom: CARD_MARGIN,
     flexDirection: 'row',
     position: 'relative',
+  },
+  separatorLine: {
+    width: width, // Full screen width
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    marginTop: 12,
   },
   disabledCard: {
     opacity: 0.5,
