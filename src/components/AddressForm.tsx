@@ -106,7 +106,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
   // Debounce timer for address lookup
   const debounceTimer = useRef<NodeJS.Timeout>();
 
-  // Google Places API - Get autocomplete suggestions
+  // Google Places API - Get autocomplete suggestions (New API)
   const getAddressSuggestions = async (input: string) => {
     if (!input.trim() || input.length < 3) {
       setSuggestions([]);
@@ -117,20 +117,42 @@ const AddressForm: React.FC<AddressFormProps> = ({
     try {
       setIsLoadingSuggestions(true);
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?` +
-        `input=${encodeURIComponent(input)}&` +
-        `components=country:us&` +
-        `types=address&` +
-        `key=${googlePlacesApiKey}`
+        `https://places.googleapis.com/v1/places:autocomplete`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': googlePlacesApiKey,
+          },
+          body: JSON.stringify({
+            input: input,
+            locationRestriction: {
+              country: 'US'
+            },
+            includedPrimaryTypes: ['address'],
+            languageCode: 'en'
+          })
+        }
       );
 
       const data = await response.json();
       
-      if (data.status === 'OK') {
-        setSuggestions(data.predictions || []);
+      if (response.ok && data.suggestions) {
+        const formattedSuggestions = data.suggestions
+          .filter((suggestion: any) => suggestion.placePrediction)
+          .map((suggestion: any) => ({
+            place_id: suggestion.placePrediction.placeId,
+            description: suggestion.placePrediction.text.text,
+            structured_formatting: {
+              main_text: suggestion.placePrediction.structuredFormat?.mainText?.text || suggestion.placePrediction.text.text,
+              secondary_text: suggestion.placePrediction.structuredFormat?.secondaryText?.text || ''
+            }
+          }));
+        
+        setSuggestions(formattedSuggestions);
         setShowSuggestions(true);
       } else {
-        log.warn('🗺️ [AddressForm] Places API error:', data.status);
+        log.warn('🗺️ [AddressForm] Places API error:', data.error || 'Unknown error');
         setSuggestions([]);
         setShowSuggestions(false);
       }
@@ -143,23 +165,37 @@ const AddressForm: React.FC<AddressFormProps> = ({
     }
   };
 
-  // Google Places API - Get place details
+  // Google Places API - Get place details (New API)
   const getPlaceDetails = async (placeId: string) => {
     try {
       setIsLoadingDetails(true);
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/details/json?` +
-        `place_id=${placeId}&` +
-        `fields=address_components,formatted_address&` +
-        `key=${googlePlacesApiKey}`
+        `https://places.googleapis.com/v1/places/${placeId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': googlePlacesApiKey,
+            'X-Goog-FieldMask': 'addressComponents,formattedAddress'
+          }
+        }
       );
 
       const data = await response.json();
       
-      if (data.status === 'OK' && data.result) {
-        return data.result as PlaceDetails;
+      if (response.ok && data.addressComponents) {
+        // Convert new API format to legacy format for compatibility
+        const legacyFormat = {
+          address_components: data.addressComponents.map((component: any) => ({
+            long_name: component.longText,
+            short_name: component.shortText,
+            types: component.types
+          })),
+          formatted_address: data.formattedAddress
+        };
+        return legacyFormat as PlaceDetails;
       } else {
-        log.warn('🗺️ [AddressForm] Place details API error:', data.status);
+        log.warn('🗺️ [AddressForm] Place details API error:', data.error || 'Unknown error');
         return null;
       }
     } catch (error) {

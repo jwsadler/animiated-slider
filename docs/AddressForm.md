@@ -26,7 +26,7 @@ yarn add react-native-logs
    - Go to [Google Cloud Console](https://console.cloud.google.com/)
    - Create a new project or select existing one
    - Enable the following APIs:
-     - Places API
+     - Places API (New)
      - Geocoding API
    - Create credentials (API Key)
    - Add restrictions for security
@@ -116,8 +116,8 @@ interface Address {
 ### 1. Enable Required APIs
 
 In Google Cloud Console, enable:
-- **Places API** - For address autocomplete
-- **Geocoding API** - For address details
+- **Places API (New)** - For address autocomplete and details
+- **Geocoding API** - For additional geocoding features (optional)
 
 ### 2. API Key Restrictions
 
@@ -129,8 +129,8 @@ For security, add these restrictions to your API key:
 
 **API restrictions:**
 - Restrict key to specific APIs:
-  - Places API
-  - Geocoding API
+  - Places API (New)
+  - Geocoding API (if needed)
 
 ### 3. Billing
 

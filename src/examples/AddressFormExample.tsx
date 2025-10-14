@@ -159,7 +159,7 @@ const AddressFormExample: React.FC = () => {
             1. Get a Google Places API key from Google Cloud Console
           </Text>
           <Text style={styles.noticeStep}>
-            2. Enable Places API and Geocoding API
+            2. Enable Places API (New) and Geocoding API
           </Text>
           <Text style={styles.noticeStep}>
             3. Replace GOOGLE_PLACES_API_KEY in this example
