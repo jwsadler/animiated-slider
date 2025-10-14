@@ -14,6 +14,8 @@ import {
   Keyboard,
 } from 'react-native';
 import { logger } from 'react-native-logs';
+import { useGooglePlaces } from '../hooks/useGooglePlaces';
+import { PlaceSuggestion } from '../services/googlePlacesService';
 
 const { width } = Dimensions.get('window');
 const log = logger.createLogger({
@@ -40,25 +42,7 @@ export interface Address {
   isDefault: boolean;
 }
 
-// Google Places API suggestion interface
-interface PlaceSuggestion {
-  place_id: string;
-  description: string;
-  structured_formatting: {
-    main_text: string;
-    secondary_text: string;
-  };
-}
-
-// Google Places API place details interface
-interface PlaceDetails {
-  address_components: Array<{
-    long_name: string;
-    short_name: string;
-    types: string[];
-  }>;
-  formatted_address: string;
-}
+// Interfaces are now imported from the service
 
 interface AddressFormProps {
   initialAddress?: Address;
@@ -86,11 +70,16 @@ const AddressForm: React.FC<AddressFormProps> = ({
     isDefault: initialAddress?.isDefault || false,
   });
 
-  // Google Places state
-  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  // Google Places hook
+  const {
+    suggestions,
+    showSuggestions,
+    isLoadingSuggestions,
+    isLoadingDetails,
+    searchAddresses,
+    selectSuggestion,
+    clearSuggestions,
+  } = useGooglePlaces({ apiKey: googlePlacesApiKey });
 
   // Form validation state
   const [errors, setErrors] = useState<Partial<Record<keyof Address, string>>>({});
@@ -103,167 +92,30 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const stateRef = useRef<TextInput>(null);
   const postalCodeRef = useRef<TextInput>(null);
 
-  // Debounce timer for address lookup
-  const debounceTimer = useRef<NodeJS.Timeout>();
-
-  // Google Places API - Get autocomplete suggestions (New API)
-  const getAddressSuggestions = async (input: string) => {
-    if (!input.trim() || input.length < 3) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
-
-    try {
-      setIsLoadingSuggestions(true);
-      const response = await fetch(
-        `https://places.googleapis.com/v1/places:autocomplete`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': googlePlacesApiKey,
-          },
-          body: JSON.stringify({
-            input: input,
-            locationRestriction: {
-              country: 'US'
-            },
-            includedPrimaryTypes: ['address'],
-            languageCode: 'en'
-          })
-        }
-      );
-
-      const data = await response.json();
-      
-      if (response.ok && data.suggestions) {
-        const formattedSuggestions = data.suggestions
-          .filter((suggestion: any) => suggestion.placePrediction)
-          .map((suggestion: any) => ({
-            place_id: suggestion.placePrediction.placeId,
-            description: suggestion.placePrediction.text.text,
-            structured_formatting: {
-              main_text: suggestion.placePrediction.structuredFormat?.mainText?.text || suggestion.placePrediction.text.text,
-              secondary_text: suggestion.placePrediction.structuredFormat?.secondaryText?.text || ''
-            }
-          }));
-        
-        setSuggestions(formattedSuggestions);
-        setShowSuggestions(true);
-      } else {
-        log.warn('🗺️ [AddressForm] Places API error:', data.error || 'Unknown error');
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-    } catch (error) {
-      log.error('🗺️ [AddressForm] Error fetching suggestions:', error);
-      setSuggestions([]);
-      setShowSuggestions(false);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
-  };
-
-  // Google Places API - Get place details (New API)
-  const getPlaceDetails = async (placeId: string) => {
-    try {
-      setIsLoadingDetails(true);
-      const response = await fetch(
-        `https://places.googleapis.com/v1/places/${placeId}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': googlePlacesApiKey,
-            'X-Goog-FieldMask': 'addressComponents,formattedAddress'
-          }
-        }
-      );
-
-      const data = await response.json();
-      
-      if (response.ok && data.addressComponents) {
-        // Convert new API format to legacy format for compatibility
-        const legacyFormat = {
-          address_components: data.addressComponents.map((component: any) => ({
-            long_name: component.longText,
-            short_name: component.shortText,
-            types: component.types
-          })),
-          formatted_address: data.formattedAddress
-        };
-        return legacyFormat as PlaceDetails;
-      } else {
-        log.warn('🗺️ [AddressForm] Place details API error:', data.error || 'Unknown error');
-        return null;
-      }
-    } catch (error) {
-      log.error('🗺️ [AddressForm] Error fetching place details:', error);
-      return null;
-    } finally {
-      setIsLoadingDetails(false);
-    }
-  };
-
-  // Parse address components from Google Places API response
-  const parseAddressComponents = (components: PlaceDetails['address_components']) => {
-    const parsed = {
-      streetNumber: '',
-      route: '',
-      city: '',
-      state: '',
-      postalCode: '',
-      country: '',
-    };
-
-    components.forEach((component) => {
-      const types = component.types;
-      
-      if (types.includes('street_number')) {
-        parsed.streetNumber = component.long_name;
-      } else if (types.includes('route')) {
-        parsed.route = component.long_name;
-      } else if (types.includes('locality')) {
-        parsed.city = component.long_name;
-      } else if (types.includes('administrative_area_level_1')) {
-        parsed.state = component.long_name;
-      } else if (types.includes('postal_code')) {
-        parsed.postalCode = component.long_name;
-      } else if (types.includes('country')) {
-        parsed.country = component.long_name;
-      }
-    });
-
-    return parsed;
-  };
+  // All Google Places API logic is now handled by the useGooglePlaces hook
 
   // Handle address suggestion selection
   const handleSuggestionSelect = async (suggestion: PlaceSuggestion) => {
     log.debug('🗺️ [AddressForm] Selected suggestion:', suggestion.description);
     
-    setShowSuggestions(false);
-    setSuggestions([]);
     Keyboard.dismiss();
 
-    const placeDetails = await getPlaceDetails(suggestion.place_id);
-    if (!placeDetails) {
+    const parsedAddress = await selectSuggestion(suggestion);
+    if (!parsedAddress) {
       Alert.alert('Error', 'Unable to get address details. Please try again.');
       return;
     }
-
-    const parsed = parseAddressComponents(placeDetails.address_components);
     
     // Construct address1 from street number and route
-    const address1 = `${parsed.streetNumber} ${parsed.route}`.trim();
+    const address1 = `${parsedAddress.streetNumber} ${parsedAddress.route}`.trim();
     
     setAddress(prev => ({
       ...prev,
       address1: address1,
-      city: parsed.city,
-      state: parsed.state,
-      postalCode: parsed.postalCode,
-      country: parsed.country || 'United States',
+      city: parsedAddress.city,
+      state: parsedAddress.state,
+      postalCode: parsedAddress.postalCode,
+      country: parsedAddress.country || 'United States',
     }));
 
     // Clear any existing errors for auto-filled fields
@@ -285,14 +137,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
       setErrors(prev => ({ ...prev, address1: undefined }));
     }
 
-    // Debounce API calls
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    debounceTimer.current = setTimeout(() => {
-      getAddressSuggestions(text);
-    }, 300);
+    // Use the hook's search function (includes debouncing and number-only check)
+    searchAddresses(text);
   };
 
   // Handle other input changes
@@ -353,14 +199,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
     }
   };
 
-  // Cleanup debounce timer on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, []);
+  // Cleanup is handled by the useGooglePlaces hook
 
   // Render suggestion item
   const renderSuggestion = ({ item }: { item: PlaceSuggestion }) => (
