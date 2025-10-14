@@ -10,7 +10,6 @@ import {
   Alert,
   Switch,
   ActivityIndicator,
-  FlatList,
   Keyboard,
 } from 'react-native';
 import { logger } from 'react-native-logs';
@@ -263,13 +262,13 @@ const AddressForm: React.FC<AddressFormProps> = ({
         {/* Address Suggestions */}
         {showSuggestions && suggestions.length > 0 && (
           <View style={styles.suggestionsContainer}>
-            <FlatList
-              data={suggestions}
-              renderItem={renderSuggestion}
-              keyExtractor={(item) => item.place_id}
-              style={styles.suggestionsList}
-              keyboardShouldPersistTaps="handled"
-            />
+            <View style={styles.suggestionsList}>
+              {suggestions.map((item) => (
+                <View key={item.place_id}>
+                  {renderSuggestion({ item })}
+                </View>
+              ))}
+            </View>
           </View>
         )}
 
