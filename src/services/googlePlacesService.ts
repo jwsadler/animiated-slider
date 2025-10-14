@@ -88,9 +88,7 @@ export class GooglePlacesService {
           },
           body: JSON.stringify({
             input: input,
-            locationRestriction: {
-              country: 'US'
-            },
+            regionCode: 'US',
             includedPrimaryTypes: ['address'],
             languageCode: 'en'
           })
