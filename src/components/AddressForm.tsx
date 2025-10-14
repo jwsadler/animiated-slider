@@ -83,6 +83,9 @@ const AddressForm: React.FC<AddressFormProps> = ({
   // Form validation state
   const [errors, setErrors] = useState<Partial<Record<keyof Address, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Flag to prevent search when programmatically setting address
+  const [isSettingAddressProgrammatically, setIsSettingAddressProgrammatically] = useState(false);
 
   // Refs for input focus management
   const address1Ref = useRef<TextInput>(null);
@@ -105,6 +108,9 @@ const AddressForm: React.FC<AddressFormProps> = ({
       return;
     }
     
+    // Set flag to prevent search during programmatic address update
+    setIsSettingAddressProgrammatically(true);
+    
     // Construct address1 from street number and route
     const address1 = `${parsedAddress.streetNumber} ${parsedAddress.route}`.trim();
     
@@ -125,6 +131,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
       state: undefined,
       postalCode: undefined,
     }));
+    
+    // Reset flag after a brief delay to allow state updates to complete
+    setTimeout(() => {
+      setIsSettingAddressProgrammatically(false);
+    }, 100);
   };
 
   // Handle address1 input change with debounced API calls
@@ -136,8 +147,11 @@ const AddressForm: React.FC<AddressFormProps> = ({
       setErrors(prev => ({ ...prev, address1: undefined }));
     }
 
-    // Use the hook's search function (includes debouncing and number-only check)
-    searchAddresses(text);
+    // Only search if we're not programmatically setting the address
+    if (!isSettingAddressProgrammatically) {
+      // Use the hook's search function (includes debouncing and number-only check)
+      searchAddresses(text);
+    }
   };
 
   // Handle other input changes
