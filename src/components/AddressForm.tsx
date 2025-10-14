@@ -306,7 +306,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
       log.debug('💾 [AddressForm] Saving address:', address);
       
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise<void>(resolve => setTimeout(resolve, 500));
       
       onSave(address);
     } catch (error) {
