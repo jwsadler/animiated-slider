@@ -89,7 +89,7 @@ export class GooglePlacesService {
           body: JSON.stringify({
             input: input,
             regionCode: 'US',
-            includedPrimaryTypes: ['address'],
+            includedPrimaryTypes: ['street_address'],
             languageCode: 'en'
           })
         }
