@@ -89,6 +89,18 @@ export class GooglePlacesService {
           body: JSON.stringify({
             input: input,
             regionCode: 'US',
+            locationRestriction: {
+              rectangle: {
+                low: {
+                  latitude: 24.396308,
+                  longitude: -125.0
+                },
+                high: {
+                  latitude: 49.384358,
+                  longitude: -66.93457
+                }
+              }
+            },
             includedPrimaryTypes: ['street_address'],
             languageCode: 'en'
           })
