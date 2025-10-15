@@ -195,7 +195,7 @@ export class GooglePlacesService {
       } else if (types.includes('locality')) {
         parsed.city = component.long_name;
       } else if (types.includes('administrative_area_level_1')) {
-        parsed.state = component.long_name;
+        parsed.state = component.short_name;
       } else if (types.includes('postal_code')) {
         parsed.postalCode = component.long_name;
       } else if (types.includes('country')) {
