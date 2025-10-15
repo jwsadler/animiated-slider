@@ -84,8 +84,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
   const [errors, setErrors] = useState<Partial<Record<keyof Address, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Flag to prevent search when programmatically setting address
-  const isSettingAddressProgrammatically = useRef(false);
+  // Track if user is actively typing in address1 field
+  const [isUserTyping, setIsUserTyping] = useState(false);
 
   // Refs for input focus management
   const address1Ref = useRef<TextInput>(null);
@@ -101,15 +101,15 @@ const AddressForm: React.FC<AddressFormProps> = ({
     log.debug('🗺️ [AddressForm] Selected suggestion:', suggestion.description);
     
     Keyboard.dismiss();
+    
+    // Stop user typing mode since they selected from dropdown
+    setIsUserTyping(false);
 
     const parsedAddress = await selectSuggestion(suggestion);
     if (!parsedAddress) {
       Alert.alert('Error', 'Unable to get address details. Please try again.');
       return;
     }
-    
-    // Set flag to prevent search during programmatic address update
-    isSettingAddressProgrammatically.current = true;
     
     // Construct address1 from street number and route
     const address1 = `${parsedAddress.streetNumber} ${parsedAddress.route}`.trim();
@@ -131,11 +131,6 @@ const AddressForm: React.FC<AddressFormProps> = ({
       state: undefined,
       postalCode: undefined,
     }));
-    
-    // Reset flag after a brief delay to allow state updates to complete
-    setTimeout(() => {
-      isSettingAddressProgrammatically.current = false;
-    }, 200);
   };
 
   // Handle address1 input change with debounced API calls
@@ -147,8 +142,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
       setErrors(prev => ({ ...prev, address1: undefined }));
     }
 
-    // Only search if we're not programmatically setting the address
-    if (!isSettingAddressProgrammatically.current) {
+    // Only search if user is actively typing (not programmatic updates)
+    if (isUserTyping) {
       // Use the hook's search function (includes debouncing and number-only check)
       searchAddresses(text);
     }
@@ -255,6 +250,8 @@ const AddressForm: React.FC<AddressFormProps> = ({
               placeholderTextColor="#999999"
               value={address.address1}
               onChangeText={handleAddress1Change}
+              onFocus={() => setIsUserTyping(true)}
+              onBlur={() => setIsUserTyping(false)}
               returnKeyType="next"
               onSubmitEditing={() => address2Ref.current?.focus()}
               autoCapitalize="words"
