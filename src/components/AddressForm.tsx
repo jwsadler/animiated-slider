@@ -276,13 +276,18 @@ const AddressForm: React.FC<AddressFormProps> = ({
         {/* Address Suggestions */}
         {showSuggestions && suggestions.length > 0 && (
           <View style={styles.suggestionsContainer}>
-            <View style={styles.suggestionsList}>
+            <ScrollView 
+              style={styles.suggestionsList}
+              nestedScrollEnabled={true}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={true}
+            >
               {suggestions.map((item) => (
                 <View key={item.place_id}>
                   {renderSuggestion({ item })}
                 </View>
               ))}
-            </View>
+            </ScrollView>
           </View>
         )}
 
