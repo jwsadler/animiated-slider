@@ -9,22 +9,20 @@ import {
   Alert,
   Dimensions,
   TextInput,
-  Image,
 } from 'react-native';
 import { logger } from 'react-native-logs';
-import Video from 'react-native-video';
 import { ShowsApiService, Show } from '../services/ShowsApiService';
 
 import {
   SearchIcon,
   ChatIcon,
   NotificationIcon,
-  SoundIcon,
-  MuteIcon,
-  BookmarkIcon,
-  EyeIcon,
-  UserIcon,
 } from './icons/ShowsIcons';
+
+import { ShowCardVariant } from './ShowCardBase';
+import ShowCardGrid from './ShowCardGrid';
+import ShowCardFullWidth from './ShowCardFullWidth';
+import ShowCardHorizontal from './ShowCardHorizontal';
 
 // Configure logger
 const log = logger.createLogger({
@@ -53,144 +51,27 @@ export interface ShowsScreenProps {
   shows?: Show[];
   loading?: boolean;
   disabled?: boolean;
+  variant?: ShowCardVariant;
 }
 
-// Individual show card component
-interface ShowCardProps {
+// Export the ShowCardVariant type for external use
+export { ShowCardVariant } from './ShowCardBase';
+
+// Component selector function to render the appropriate ShowCard variant
+const ShowCard: React.FC<{
   show: Show;
   onPress: (show: Show) => void;
   disabled?: boolean;
-}
-
-const ShowCard: React.FC<ShowCardProps> = ({
-  show,
-  onPress,
-  disabled = false,
-}) => {
-  const [isMuted, setIsMuted] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-
-  const handlePress = () => {
-    if (!disabled) {
-      log.debug('🎯 [ShowCard] Show pressed:', show.title);
-      onPress(show);
-    }
-  };
-
-  const handleVolumeToggle = (e: any) => {
-    e.stopPropagation(); // Prevent card press
-    setIsMuted(!isMuted);
-    log.debug('🔊 [ShowCard] Volume toggled:', !isMuted ? 'muted' : 'unmuted');
-  };
-
-  const handleBookmarkToggle = (e: any) => {
-    e.stopPropagation(); // Prevent card press
-    setIsBookmarked(!isBookmarked);
-    log.debug('🔖 [ShowCard] Bookmark toggled:', !isBookmarked ? 'bookmarked' : 'unbookmarked');
-  };
-
-  return (
-    <TouchableOpacity
-      style={[
-        styles.showCard,
-        disabled && styles.disabledCard,
-      ]}
-      onPress={handlePress}
-      disabled={disabled}
-      activeOpacity={0.7}
-    >
-      {/* Background media */}
-      <View style={styles.showImageContainer}>
-        {show.videoUrl ? (
-          <Video
-            source={{ uri: show.videoUrl }}
-            style={styles.showImage}
-            resizeMode="cover"
-            repeat={true}
-            muted={true}
-            paused={false}
-            playInBackground={false}
-            playWhenInactive={false}
-            ignoreSilentSwitch="ignore"
-          />
-        ) : show.imageUrl ? (
-          <Image 
-            source={{ uri: show.imageUrl }} 
-            style={styles.showImage}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.showImagePlaceholder} />
-        )}
-      </View>
-
-      {/* Image overlay area */}
-      <View style={styles.imageOverlay}>
-        {/* Live indicator or scheduled time */}
-        {show.isLive ? (
-          <>
-            {/* Live badge */}
-            <View style={styles.liveBadge}>
-              <Text style={styles.liveText}>live</Text>
-              <Text style={styles.liveDot}>•</Text>
-              <Text style={styles.viewerCountText}>{show.viewerCount}</Text>
-              <EyeIcon width={12} height={12} color="#FFFFFF" />
-            </View>
-            {/* Volume toggle button */}
-            <TouchableOpacity 
-              style={[styles.volumeButton, isMuted && styles.mutedButton]} 
-              onPress={handleVolumeToggle}
-            >
-              {isMuted ? (
-                <MuteIcon width={16} height={16} color="#000000" />
-              ) : (
-                <SoundIcon width={16} height={16} color="#000000" />
-              )}
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            {/* Scheduled time badge */}
-            <View style={styles.scheduledBadge}>
-              <Text style={styles.scheduledText}>{show.scheduledTime}</Text>
-            </View>
-            {/* Bookmark toggle button */}
-            <TouchableOpacity 
-              style={[styles.bookmarkButton, isBookmarked && styles.bookmarkedButton]} 
-              onPress={handleBookmarkToggle}
-            >
-              <BookmarkIcon 
-                width={16} 
-                height={16} 
-                color="#000000"
-              />
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
-
-      {/* Show info */}
-      <View style={styles.showInfo}>
-        <View style={styles.showHeader}>
-          {show.userIcon ? (
-            <Image 
-              source={{ uri: show.userIcon }} 
-              style={styles.userAvatar}
-            />
-          ) : (
-            <UserIcon width={14} height={14} color="#666666" />
-          )}
-          <Text style={styles.nickname}>{show.nickname}</Text>
-        </View>
-        <Text style={styles.showTitle} numberOfLines={2}>
-          {show.title}
-        </Text>
-        {show.scheduledTime && (
-          <Text style={styles.scheduledTime}>{show.scheduledTime}</Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+  variant?: ShowCardVariant;
+}> = ({ show, onPress, disabled = false, variant = 'grid' }) => {
+  switch (variant) {
+    case 'fullWidth':
+      return <ShowCardFullWidth show={show} onPress={onPress} disabled={disabled} />;
+    case 'horizontal':
+      return <ShowCardHorizontal show={show} onPress={onPress} disabled={disabled} />;
+    default:
+      return <ShowCardGrid show={show} onPress={onPress} disabled={disabled} />;
+  }
 };
 
 // Main Shows screen component
@@ -203,6 +84,7 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
   shows: propShows,
   loading: propLoading = false,
   disabled = false,
+  variant = 'grid',
 }) => {
   const [shows, setShows] = useState<Show[]>(propShows || []);
   const [filteredShows, setFilteredShows] = useState<Show[]>([]);
@@ -317,32 +199,48 @@ const ShowsScreen: React.FC<ShowsScreenProps> = ({
     onNotificationPress?.();
   };
 
-  // Render shows in 2-column grid
+  // Render shows based on variant
   const renderShows = () => {
-    const rows = [];
-    for (let i = 0; i < filteredShows.length; i += 2) {
-      const leftShow = filteredShows[i];
-      const rightShow = filteredShows[i + 1];
+    if (variant === 'grid') {
+      // Render in 2-column grid
+      const rows = [];
+      for (let i = 0; i < filteredShows.length; i += 2) {
+        const leftShow = filteredShows[i];
+        const rightShow = filteredShows[i + 1];
 
-      rows.push(
-        <View key={`row-${i}`} style={styles.showRow}>
-          <ShowCard
-            show={leftShow}
-            onPress={handleShowPress}
-            disabled={disabled || loading}
-          />
-          {rightShow && (
+        rows.push(
+          <View key={`row-${i}`} style={styles.showRow}>
             <ShowCard
-              show={rightShow}
+              show={leftShow}
               onPress={handleShowPress}
               disabled={disabled || loading}
+              variant={variant}
             />
-          )}
-          {!rightShow && <View style={styles.showCard} />}
-        </View>
-      );
+            {rightShow && (
+              <ShowCard
+                show={rightShow}
+                onPress={handleShowPress}
+                disabled={disabled || loading}
+                variant={variant}
+              />
+            )}
+            {!rightShow && <View style={styles.showCard} />}
+          </View>
+        );
+      }
+      return rows;
+    } else {
+      // Render single column for fullWidth and horizontal variants
+      return filteredShows.map((show) => (
+        <ShowCard
+          key={show.id}
+          show={show}
+          onPress={handleShowPress}
+          disabled={disabled || loading}
+          variant={variant}
+        />
+      ));
     }
-    return rows;
   };
 
   return (
@@ -487,6 +385,17 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
   },
+  fullWidthCard: {
+    width: width - (CARD_MARGIN * 2), // Full width minus margins
+    marginBottom: CARD_MARGIN,
+  },
+  horizontalCard: {
+    width: width - (CARD_MARGIN * 2), // Full width minus margins
+    flexDirection: 'row',
+    height: 120,
+    marginBottom: CARD_MARGIN,
+    backgroundColor: '#FFFFFF', // White background for horizontal cards
+  },
   disabledCard: {
     opacity: 0.5,
   },
@@ -498,6 +407,16 @@ const styles = StyleSheet.create({
     bottom: 0,
     overflow: 'hidden',
     borderRadius: 16,
+  },
+  horizontalImageContainer: {
+    position: 'relative',
+    width: '25%', // 1/4 of card width
+    aspectRatio: 16 / 9, // Maintain aspect ratio
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    overflow: 'hidden',
   },
   showImage: {
     width: '100%',
@@ -511,6 +430,13 @@ const styles = StyleSheet.create({
   imageOverlay: {
     height: 120,
     position: 'relative',
+  },
+  horizontalImageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   liveBadge: {
     position: 'absolute',
@@ -569,6 +495,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  horizontalLiveBadge: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  horizontalScheduledBadge: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
   bookmarkButton: {
     position: 'absolute',
     top: 12,
@@ -583,8 +529,24 @@ const styles = StyleSheet.create({
   bookmarkedButton: {
     backgroundColor: 'rgba(255, 215, 0, 0.9)', // Gold background when bookmarked
   },
+  horizontalBookmarkButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   showInfo: {
     padding: 12,
+  },
+  horizontalShowInfo: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'center',
   },
   showHeader: {
     flexDirection: 'row',
