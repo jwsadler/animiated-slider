@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -39,14 +39,22 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
-  const [filters, setFilters] = useState<NotificationFilters>(
-    initialFilters || {},
-  );
+  // Memoize initial filters to prevent unnecessary re-renders
+  const memoizedInitialFilters = useMemo(() => initialFilters || {}, [initialFilters]);
+  const [filters, setFilters] = useState<NotificationFilters>(memoizedInitialFilters);
 
+  // Initial load
   useEffect(() => {
     loadNotifications(true);
     loadUnreadCount();
-  }, [filters]);
+  }, []);
+
+  // Reload when filters change (but not on initial mount)
+  useEffect(() => {
+    if (JSON.stringify(filters) !== JSON.stringify(memoizedInitialFilters)) {
+      loadNotifications(true);
+    }
+  }, [filters, memoizedInitialFilters]);
 
   const loadNotifications = async (reset: boolean = false) => {
     if (loading && !reset) return;
