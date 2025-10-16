@@ -91,6 +91,14 @@ export const componentStyles = {
           designTokens.typography.sizes.sm *
           designTokens.typography.lineHeights.normal,
       },
+      buttonMedium: {
+        fontSize: designTokens.typography.sizes.base,
+        fontWeight: designTokens.typography.weights.semibold,
+        lineHeight:
+          designTokens.typography.sizes.base *
+          designTokens.typography.lineHeights.normal,
+        letterSpacing: 0.5,
+      },
       buttonLarge: {
         fontSize: designTokens.typography.sizes.lg,
         fontWeight: designTokens.typography.weights.semibold,
