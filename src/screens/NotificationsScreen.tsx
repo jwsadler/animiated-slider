@@ -13,6 +13,9 @@ import {
 import { ExtendedMessage, NotificationFilters } from '../types/notifications';
 import { NotificationService } from '../services/NotificationService';
 import { NotificationCard } from '../components/NotificationCard';
+import { designTokens } from '../design-system/design-tokens';
+import { componentStyles } from '../design-system/component-styles';
+import { Logger } from '../services/Logger';
 
 interface NotificationsScreenProps {
   onNotificationPress?: (notification: ExtendedMessage) => void;
@@ -88,6 +91,12 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   }, [filters]);
 
   const handleNotificationPress = async (notification: ExtendedMessage) => {
+    Logger.userAction('NotificationsScreen', 'notification_press', {
+      notificationId: notification.id,
+      notificationType: notification.type,
+      wasRead: notification.isRead
+    });
+
     // Mark as read if unread
     if (!notification.isRead) {
       try {
@@ -99,7 +108,9 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
       } catch (err) {
-        console.error('Error marking notification as read:', err);
+        Logger.error('NotificationsScreen', 'Error marking notification as read', err as Error, {
+          notificationId: notification.id
+        });
       }
     }
 
@@ -109,6 +120,11 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   };
 
   const handleNotificationLongPress = (notification: ExtendedMessage) => {
+    Logger.userAction('NotificationsScreen', 'notification_long_press', {
+      notificationId: notification.id,
+      notificationType: notification.type
+    });
+
     Alert.alert(
       'Notification Actions',
       `What would you like to do with "${notification.title}"?`,
@@ -165,6 +181,12 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   };
 
   const handleFilterChange = (filter: 'all' | 'unread' | 'read') => {
+    Logger.userAction('NotificationsScreen', 'filter_change', {
+      previousFilter: selectedFilter,
+      newFilter: filter,
+      notificationCount: notifications.length
+    });
+
     setSelectedFilter(filter);
     
     const newFilters: NotificationFilters = { ...initialFilters };
@@ -181,12 +203,18 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   };
 
   const markAllAsRead = async () => {
+    Logger.userAction('NotificationsScreen', 'mark_all_as_read', {
+      unreadCount
+    });
+
     try {
       await NotificationService.markAllAsRead();
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (err) {
-      console.error('Error marking all as read:', err);
+      Logger.error('NotificationsScreen', 'Error marking all as read', err as Error, {
+        unreadCount
+      });
       Alert.alert('Error', 'Failed to mark all notifications as read');
     }
   };
@@ -299,8 +327,8 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#007AFF']}
-            tintColor="#007AFF"
+            colors={[designTokens.colors.primary[500]]}
+            tintColor={designTokens.colors.primary[500]}
           />
         }
         onEndReached={() => {
@@ -319,29 +347,28 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: designTokens.colors.neutral[50],
   },
   header: {
-    backgroundColor: 'white',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    backgroundColor: designTokens.colors.neutral[0],
+    paddingHorizontal: designTokens.spacing.md,
+    paddingTop: designTokens.spacing.md,
+    paddingBottom: designTokens.spacing.sm + 4,
+    ...designTokens.borders.sm,
+    borderBottomColor: designTokens.colors.neutral[200],
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: designTokens.spacing.sm + 4,
   },
   screenTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#000',
+    ...componentStyles.text.variants.h1,
+    color: designTokens.colors.neutral[900],
   },
   settingsButton: {
-    padding: 8,
+    padding: designTokens.spacing.xs,
   },
   settingsButtonText: {
     fontSize: 20,
@@ -350,110 +377,99 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 4,
+    marginBottom: designTokens.spacing.md,
+    paddingHorizontal: designTokens.spacing.xs,
   },
   unreadText: {
-    fontSize: 14,
-    color: '#8E8E93',
+    ...componentStyles.text.variants.body2,
+    color: designTokens.colors.neutral[500],
   },
   markAllButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    backgroundColor: '#007AFF',
+    ...componentStyles.button.base,
+    ...componentStyles.button.variants.primary,
+    ...componentStyles.button.sizes.small,
   },
   markAllButtonText: {
-    fontSize: 12,
-    color: 'white',
-    fontWeight: '600',
+    ...componentStyles.text.variants.buttonSmall,
+    color: componentStyles.button.variants.primary.textColor,
   },
   filterRow: {
     flexDirection: 'row',
-    gap: 8,
+    gap: designTokens.spacing.xs,
   },
   filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
+    ...componentStyles.button.base,
+    ...componentStyles.button.variants.secondary,
+    ...componentStyles.button.sizes.small,
   },
   activeFilterButton: {
-    backgroundColor: '#007AFF',
+    ...componentStyles.button.variants.primary,
   },
   filterButtonText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    ...componentStyles.text.variants.buttonSmall,
+    color: componentStyles.button.variants.secondary.textColor,
   },
   activeFilterButtonText: {
-    color: 'white',
-    fontWeight: '600',
+    color: componentStyles.button.variants.primary.textColor,
   },
   footer: {
-    padding: 20,
+    padding: designTokens.spacing.lg,
     alignItems: 'center',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: designTokens.spacing.xl,
   },
   emptyContentContainer: {
     flexGrow: 1,
   },
   emptyIcon: {
     fontSize: 64,
-    marginBottom: 16,
+    marginBottom: designTokens.spacing.md,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    ...componentStyles.text.variants.h3,
+    color: designTokens.colors.neutral[700],
+    marginBottom: designTokens.spacing.xs,
     textAlign: 'center',
   },
   emptyDescription: {
-    fontSize: 16,
-    color: '#8E8E93',
+    ...componentStyles.text.variants.body1,
+    color: designTokens.colors.neutral[500],
     textAlign: 'center',
-    lineHeight: 22,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: designTokens.spacing.xl,
   },
   errorIcon: {
     fontSize: 64,
-    marginBottom: 16,
+    marginBottom: designTokens.spacing.md,
   },
   errorTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    ...componentStyles.text.variants.h3,
+    color: designTokens.colors.neutral[700],
+    marginBottom: designTokens.spacing.xs,
     textAlign: 'center',
   },
   errorDescription: {
-    fontSize: 16,
-    color: '#8E8E93',
+    ...componentStyles.text.variants.body1,
+    color: designTokens.colors.neutral[500],
     textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 24,
+    marginBottom: designTokens.spacing.lg + 8,
   },
   retryButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 24,
+    ...componentStyles.button.base,
+    ...componentStyles.button.variants.primary,
+    ...componentStyles.button.sizes.medium,
   },
   retryButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    ...componentStyles.text.variants.buttonMedium,
+    color: componentStyles.button.variants.primary.textColor,
   },
 });
 

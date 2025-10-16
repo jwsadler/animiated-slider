@@ -6,6 +6,7 @@ import {
   NotificationUpdateResponse,
   NotificationAction 
 } from '../types/notifications';
+import { Logger } from './Logger';
 
 // Mock notification data
 const mockNotifications: ExtendedMessage[] = [
@@ -160,6 +161,8 @@ export class NotificationService {
     page: number = 1,
     limit: number = 20
   ): Promise<NotificationResponse> {
+    Logger.apiCall('NotificationService', 'GET', '/notifications', { filters, page, limit });
+    
     return new Promise((resolve) => {
       setTimeout(() => {
         let filteredNotifications = [...this.notifications];
@@ -196,20 +199,35 @@ export class NotificationService {
         const endIndex = startIndex + limit;
         const paginatedNotifications = filteredNotifications.slice(startIndex, endIndex);
 
-        resolve({
+        const response = {
           notifications: paginatedNotifications,
           total: filteredNotifications.length,
           hasMore: endIndex < filteredNotifications.length
+        };
+
+        Logger.apiResponse('NotificationService', 'GET', '/notifications', true, 500, {
+          resultCount: paginatedNotifications.length,
+          total: response.total
         });
+
+        resolve(response);
       }, 500); // Simulate network delay
     });
   }
 
   // Get a single notification by ID
   static async getNotification(id: string): Promise<ExtendedMessage | null> {
+    Logger.apiCall('NotificationService', 'GET', `/notifications/${id}`, { id });
+    
     return new Promise((resolve) => {
       setTimeout(() => {
         const notification = this.notifications.find(n => n.id === id);
+        const success = !!notification;
+        
+        Logger.apiResponse('NotificationService', 'GET', `/notifications/${id}`, success, 200, {
+          found: success
+        });
+        
         resolve(notification || null);
       }, 200);
     });
@@ -221,11 +239,17 @@ export class NotificationService {
     action: NotificationAction,
     data?: Partial<ExtendedMessage>
   ): Promise<NotificationUpdateResponse> {
+    Logger.apiCall('NotificationService', 'PATCH', `/notifications/${id}`, { id, action, data });
+    
     return new Promise((resolve) => {
       setTimeout(() => {
         const notificationIndex = this.notifications.findIndex(n => n.id === id);
         
         if (notificationIndex === -1) {
+          Logger.apiResponse('NotificationService', 'PATCH', `/notifications/${id}`, false, 300, {
+            error: 'Notification not found'
+          });
+          
           resolve({
             success: false,
             message: 'Notification not found'
@@ -258,11 +282,18 @@ export class NotificationService {
 
         this.notifications[notificationIndex] = notification;
 
-        resolve({
+        const response = {
           success: true,
           message: `Notification ${action.replace('_', ' ')} successfully`,
           updatedNotification: notification
+        };
+
+        Logger.apiResponse('NotificationService', 'PATCH', `/notifications/${id}`, true, 300, {
+          action,
+          notificationId: id
         });
+
+        resolve(response);
       }, 300);
     });
   }

@@ -7,6 +7,9 @@ import {
   StyleSheet,
 } from 'react-native';
 import { ExtendedMessage } from '../types/notifications';
+import { designTokens } from '../design-system/design-tokens';
+import { componentStyles } from '../design-system/component-styles';
+import { Logger } from '../services/Logger';
 
 interface NotificationCardProps {
   notification: ExtendedMessage;
@@ -25,12 +28,21 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
 }) => {
   const handlePress = () => {
     if (!disabled && onPress) {
+      Logger.userAction('NotificationCard', 'notification_press', {
+        notificationId: notification.id,
+        notificationType: notification.type,
+        isRead: notification.isRead
+      });
       onPress(notification);
     }
   };
 
   const handleLongPress = () => {
     if (!disabled && onLongPress) {
+      Logger.userAction('NotificationCard', 'notification_long_press', {
+        notificationId: notification.id,
+        notificationType: notification.type
+      });
       onLongPress(notification);
     }
   };
@@ -38,28 +50,28 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   const getStatusColor = () => {
     switch (notification.status) {
       case 'new':
-        return '#007AFF';
+        return designTokens.colors.info;
       case 'downloaded':
-        return '#34C759';
+        return designTokens.colors.success;
       case 'red':
-        return '#FF3B30';
+        return designTokens.colors.error;
       case 'deleted':
-        return '#8E8E93';
+        return designTokens.colors.neutral[450];
       default:
-        return '#8E8E93';
+        return designTokens.colors.neutral[450];
     }
   };
 
   const getPriorityColor = () => {
     switch (notification.priority) {
       case 'high':
-        return '#FF3B30';
+        return designTokens.colors.error;
       case 'medium':
-        return '#FF9500';
+        return designTokens.colors.warning;
       case 'low':
-        return '#8E8E93';
+        return designTokens.colors.neutral[450];
       default:
-        return '#8E8E93';
+        return designTokens.colors.neutral[450];
     }
   };
 
@@ -183,26 +195,18 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
 
 const styles = StyleSheet.create({
   notificationCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    padding: 16,
+    backgroundColor: designTokens.colors.neutral[0],
+    borderRadius: designTokens.borderRadius.xl,
+    marginHorizontal: designTokens.spacing.md,
+    marginVertical: designTokens.spacing.xs + 2,
+    padding: designTokens.spacing.md,
     position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
+    ...designTokens.shadows.md,
+    ...designTokens.borders.sm,
   },
   unreadCard: {
-    backgroundColor: '#F8F9FF',
-    borderColor: '#E6EAFF',
+    backgroundColor: designTokens.colors.primary[50],
+    borderColor: designTokens.colors.primary[500],
   },
   disabledCard: {
     opacity: 0.6,
@@ -213,20 +217,20 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 4,
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
+    borderTopLeftRadius: designTokens.borderRadius.xl,
+    borderBottomLeftRadius: designTokens.borderRadius.xl,
   },
   priorityIndicator: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    top: designTokens.spacing.sm,
+    right: designTokens.spacing.sm,
+    width: designTokens.spacing.sm,
+    height: designTokens.spacing.sm,
+    borderRadius: designTokens.spacing.sm / 2,
   },
   cardContent: {
     flex: 1,
-    paddingLeft: 8,
+    paddingLeft: designTokens.spacing.sm,
   },
   headerRow: {
     flexDirection: 'row',
@@ -269,19 +273,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    ...componentStyles.text.variants.h6,
+    color: componentStyles.text.colors.primary,
     marginBottom: 2,
   },
   unreadTitle: {
-    fontWeight: '700',
-    color: '#000',
+    fontWeight: designTokens.typography.weights.bold,
+    color: designTokens.colors.neutral[1000],
   },
   category: {
-    fontSize: 12,
-    color: '#8E8E93',
-    fontWeight: '500',
+    ...componentStyles.text.variants.caption,
+    color: componentStyles.text.colors.tertiary,
+    fontWeight: designTokens.typography.weights.medium,
   },
   rightHeader: {
     alignItems: 'flex-end',
@@ -297,29 +300,26 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   description: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 8,
+    ...componentStyles.text.variants.body2,
+    color: componentStyles.text.colors.secondary,
+    marginBottom: designTokens.spacing.sm,
   },
   unreadDescription: {
-    color: '#333',
-    fontWeight: '500',
+    color: componentStyles.text.colors.primary,
+    fontWeight: designTokens.typography.weights.medium,
   },
   actionContainer: {
     alignItems: 'flex-start',
     marginTop: 8,
   },
   actionButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    ...componentStyles.button.base,
+    ...componentStyles.button.variants.primary,
+    ...componentStyles.button.sizes.small,
   },
   actionButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: '600',
+    ...componentStyles.text.variants.buttonSmall,
+    color: componentStyles.button.variants.primary.textColor,
   },
 });
 
