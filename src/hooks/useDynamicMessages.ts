@@ -5,12 +5,12 @@ import {
   DynamicMessage,
   DynamicMessages,
 } from '../types/database';
-import { getFirebaseDynamicMessages } from '../services/firebase/FirebaseDynamicMessagesService';
+import { getFirebaseDynamicMessages } from '../services/DynamicMessagesService';
 
 // Firebase-enabled hook for using dynamic configuration in components
 // This version uses actual Firebase Realtime Database for real-time updates
 // Hook for using dynamic configuration in components
-export const useFirebaseDynamicMessages = () => {
+export const useDynamicMessages = () => {
   const [messages, setMessages] = useState<DynamicMessage[]>(
     getFirebaseDynamicMessages().getMessages(),
   );
