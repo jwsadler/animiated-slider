@@ -42,9 +42,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const [filters, setFilters] = useState<NotificationFilters>(
     initialFilters || {},
   );
-  const [selectedFilter, setSelectedFilter] = useState<
-    'all' | 'unread' | 'read'
-  >('all');
 
   useEffect(() => {
     loadNotifications(true);
@@ -196,49 +193,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     }
   };
 
-  const handleFilterChange = (filter: 'all' | 'unread' | 'read') => {
-    Logger.userAction('NotificationsScreen', 'filter_change', {
-      previousFilter: selectedFilter,
-      newFilter: filter,
-      notificationCount: notifications.length,
-    });
 
-    setSelectedFilter(filter);
 
-    const newFilters: NotificationFilters = { ...initialFilters };
-
-    if (filter === 'unread') {
-      newFilters.isRead = false;
-    } else if (filter === 'read') {
-      newFilters.isRead = true;
-    } else {
-      delete newFilters.isRead;
-    }
-
-    setFilters(newFilters);
-  };
-
-  const markAllAsRead = async () => {
-    Logger.userAction('NotificationsScreen', 'mark_all_as_read', {
-      unreadCount,
-    });
-
-    try {
-      await NotificationService.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      setUnreadCount(0);
-    } catch (err) {
-      Logger.error(
-        'NotificationsScreen',
-        'Error marking all as read',
-        err as Error,
-        {
-          unreadCount,
-        },
-      );
-      Alert.alert('Error', 'Failed to mark all notifications as read');
-    }
-  };
 
   const renderNotification = ({ item }: { item: ExtendedMessage }) => (
     <NotificationCard
@@ -256,51 +212,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           <Text style={styles.backButtonText}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.screenTitle}>{title}</Text>
-        {onSettingsPress && (
-          <TouchableOpacity
-            onPress={onSettingsPress}
-            style={styles.settingsButton}
-          >
-            <Text style={styles.settingsButtonText}>⚙️</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {unreadCount > 0 && (
-        <View style={styles.unreadRow}>
-          <Text style={styles.unreadText}>
-            {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-          </Text>
-          <TouchableOpacity
-            onPress={markAllAsRead}
-            style={styles.markAllButton}
-          >
-            <Text style={styles.markAllButtonText}>Mark all as read</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Filter buttons */}
-      <View style={styles.filterRow}>
-        {(['all', 'unread', 'read'] as const).map(filter => (
-          <TouchableOpacity
-            key={filter}
-            style={[
-              styles.filterButton,
-              selectedFilter === filter && styles.activeFilterButton,
-            ]}
-            onPress={() => handleFilterChange(filter)}
-          >
-            <Text
-              style={[
-                styles.filterButtonText,
-                selectedFilter === filter && styles.activeFilterButtonText,
-              ]}
-            >
-              {filter.charAt(0).toUpperCase() + filter.slice(1)}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <View style={styles.headerSpacer} />
       </View>
     </View>
   );
@@ -320,11 +232,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
       <Text style={styles.emptyIcon}>📭</Text>
       <Text style={styles.emptyTitle}>No notifications</Text>
       <Text style={styles.emptyDescription}>
-        {selectedFilter === 'unread'
-          ? "You're all caught up! No unread notifications."
-          : selectedFilter === 'read'
-          ? 'No read notifications found.'
-          : "You don't have any notifications yet."}
+        You don't have any notifications yet.
       </Text>
     </View>
   );
@@ -360,8 +268,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[designTokens.colors.primary[500]]}
-            tintColor={designTokens.colors.primary[500]}
+            colors={['#007AFF']}
+            tintColor={'#007AFF'}
           />
         }
         onEndReached={() => {
@@ -382,140 +290,107 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: designTokens.colors.neutral[50],
-  },
-  backButton: {
-    width: 40,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  backButtonText: {
-    fontSize: 42,
-    color: designTokens.colors.neutral[1000],
-    fontWeight: '300',
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    backgroundColor: designTokens.colors.neutral[0],
-    paddingHorizontal: designTokens.spacing.md,
-    paddingTop: designTokens.spacing.md,
-    paddingBottom: designTokens.spacing.sm + 4,
-    ...designTokens.borders.sm,
-    borderBottomColor: designTokens.colors.neutral[200],
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
   titleRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: designTokens.spacing.sm + 4,
+    justifyContent: 'space-between',
+  },
+  backButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#000000',
+    fontWeight: '400',
   },
   screenTitle: {
-    ...componentStyles.text.variants.h1,
-    color: designTokens.colors.neutral[900],
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 16,
   },
-  settingsButton: {
-    padding: designTokens.spacing.xs,
-  },
-  settingsButtonText: {
-    fontSize: 20,
-  },
-  unreadRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: designTokens.spacing.md,
-    paddingHorizontal: designTokens.spacing.xs,
-  },
-  unreadText: {
-    ...componentStyles.text.variants.body2,
-    color: designTokens.colors.neutral[500],
-  },
-  markAllButton: {
-    ...componentStyles.button.base,
-    ...componentStyles.button.variants.primary,
-    ...componentStyles.button.sizes.small,
-  },
-  markAllButtonText: {
-    ...componentStyles.text.variants.buttonSmall,
-    color: componentStyles.button.variants.primary.textColor,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    gap: designTokens.spacing.xs,
-  },
-  filterButton: {
-    ...componentStyles.button.base,
-    ...componentStyles.button.variants.secondary,
-    ...componentStyles.button.sizes.small,
-  },
-  activeFilterButton: {
-    ...componentStyles.button.variants.primary,
-  },
-  filterButtonText: {
-    ...componentStyles.text.variants.buttonSmall,
-    color: componentStyles.button.variants.secondary.textColor,
-  },
-  activeFilterButtonText: {
-    color: componentStyles.button.variants.primary.textColor,
+  headerSpacer: {
+    width: 32,
   },
   footer: {
-    padding: designTokens.spacing.lg,
+    padding: 20,
     alignItems: 'center',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: designTokens.spacing.xl,
+    paddingHorizontal: 32,
   },
   emptyContentContainer: {
     flexGrow: 1,
   },
   emptyIcon: {
-    fontSize: 64,
-    marginBottom: designTokens.spacing.md,
+    fontSize: 48,
+    marginBottom: 16,
   },
   emptyTitle: {
-    ...componentStyles.text.variants.h3,
-    color: designTokens.colors.neutral[700],
-    marginBottom: designTokens.spacing.xs,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 8,
     textAlign: 'center',
   },
   emptyDescription: {
-    ...componentStyles.text.variants.body1,
-    color: designTokens.colors.neutral[500],
+    fontSize: 14,
+    color: '#666666',
     textAlign: 'center',
+    lineHeight: 20,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: designTokens.spacing.xl,
+    paddingHorizontal: 32,
   },
   errorIcon: {
-    fontSize: 64,
-    marginBottom: designTokens.spacing.md,
+    fontSize: 48,
+    marginBottom: 16,
   },
   errorTitle: {
-    ...componentStyles.text.variants.h3,
-    color: designTokens.colors.neutral[700],
-    marginBottom: designTokens.spacing.xs,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 8,
     textAlign: 'center',
   },
   errorDescription: {
-    ...componentStyles.text.variants.body1,
-    color: designTokens.colors.neutral[500],
+    fontSize: 14,
+    color: '#666666',
     textAlign: 'center',
-    marginBottom: designTokens.spacing.lg + 8,
+    lineHeight: 20,
+    marginBottom: 24,
   },
   retryButton: {
-    ...componentStyles.button.base,
-    ...componentStyles.button.variants.primary,
-    ...componentStyles.button.sizes.medium,
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
   },
   retryButtonText: {
-    ...componentStyles.text.variants.buttonMedium,
-    color: componentStyles.button.variants.primary.textColor,
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
