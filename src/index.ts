@@ -1,6 +1,7 @@
 export { AnimatedSlider, AnimatedSliderProps } from './AnimatedSlider';
 export { VerticalAnimatedSlider, VerticalAnimatedSliderProps } from './VerticalAnimatedSlider';
 export { BottomTabNavigation, BottomTabNavigationProps, TabConfig } from './BottomTabNavigation';
+export { AppleGlassBottomTabNavigation, AppleGlassBottomTabNavigationProps } from './AppleGlassBottomTabNavigation';
 export { AuctionScreen, AuctionScreenProps, AuctionItem } from './components/AuctionScreen';
 export { PaymentScreen, PaymentScreenProps, PaymentMethod } from './components/PaymentScreen';
 
@@ -8,6 +9,7 @@ export { PaymentScreen, PaymentScreenProps, PaymentMethod } from './components/P
 export { default as TabNavigationExample } from './TabNavigationExample';
 export { default as TabNavigationWithSVGExample } from './TabNavigationWithSVGExample';
 export { default as TabNavigationIconExamples } from './TabNavigationIconExamples';
+export { default as AppleGlassTabNavigationExample, AppleGlassDarkTabNavigationExample } from './AppleGlassTabNavigationExample';
 
 // Export icon components
 export * from './components/TabIcons';
