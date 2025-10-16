@@ -16,6 +16,7 @@ export * from './components/DynamicTabIcons';
 // Animated Slider Button
 export { default as AnimatedSliderButton, AnimatedSliderButtonProps } from './components/AnimatedSliderButton';
 export { default as AnimatedSliderButtonExample } from './examples/AnimatedSliderButtonExample';
+
 // Shows/Auctions Components
 export { ShowsApiService, Show } from './services/ShowsApiService';
 export { default as ShowsScreen, ShowsScreenProps } from './components/ShowsScreen';
@@ -32,5 +33,13 @@ export {
   EyeIcon,
   UserIcon,
 } from './components/icons/ShowsIcons';
+
+// Notification Components and Types
+export * from './types/notifications';
+export { NotificationService } from './services/NotificationService';
+export { NotificationCard } from './components/NotificationCard';
+export { default as NotificationsScreen } from './screens/NotificationsScreen';
+export { default as NotificationDetailScreen } from './screens/NotificationDetailScreen';
+export { default as NotificationSettingsScreen } from './screens/NotificationSettingsScreen';
 
 export default AnimatedSlider;
