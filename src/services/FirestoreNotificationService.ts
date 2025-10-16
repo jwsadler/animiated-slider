@@ -1,32 +1,16 @@
 // src/services/FirestoreNotificationService.ts
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
-  startAfter,
-  onSnapshot,
-  serverTimestamp,
-  Timestamp,
-  DocumentSnapshot,
-  QuerySnapshot,
-  Unsubscribe
-} from 'firebase/firestore';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { 
-  db, 
   FirebaseNotification, 
   NotificationSettings,
   getUserNotificationPath,
-  getUserSettingsPath 
-} from '../config/firebase';
+  getUserSettingsPath,
+  logInfo,
+  logError,
+  logDebug
+} from '../config/firebase-notifications';
 import { ExtendedMessage } from '../types/notifications';
+import { getFirebaseServices } from '../config/your-existing-firebase-config'; // Update this path
 
 export interface NotificationFilter {
   type?: string[];
@@ -34,7 +18,7 @@ export interface NotificationFilter {
   priority?: string[];
   isRead?: boolean;
   limit?: number;
-  startAfter?: DocumentSnapshot;
+  startAfter?: FirebaseFirestoreTypes.DocumentSnapshot;
 }
 
 export interface NotificationListener {
@@ -43,7 +27,7 @@ export interface NotificationListener {
 
 export class FirestoreNotificationService {
   private static instance: FirestoreNotificationService;
-  private listeners: Map<string, Unsubscribe> = new Map();
+  private listeners: Map<string, () => void> = new Map();
 
   private constructor() {}
 
@@ -62,21 +46,22 @@ export class FirestoreNotificationService {
     notificationData: Omit<FirebaseNotification, 'id' | 'createdAt' | 'updatedAt' | 'userId'>
   ): Promise<string> {
     try {
+      const firestore = getFirebaseServices().firestore;
       const notificationPath = getUserNotificationPath(userId);
-      const notificationsRef = collection(db, notificationPath);
+      const notificationsRef = firestore.collection(notificationPath);
 
       const docData = {
         ...notificationData,
         userId,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore.FieldValue.serverTimestamp()
       };
 
-      const docRef = await addDoc(notificationsRef, docData);
-      console.log('Notification created with ID:', docRef.id);
+      const docRef = await notificationsRef.add(docData);
+      logInfo('Notification created with ID:', docRef.id);
       return docRef.id;
     } catch (error) {
-      console.error('Failed to create notification:', error);
+      logError('Failed to create notification', error as Error);
       throw error;
     }
   }
@@ -86,16 +71,17 @@ export class FirestoreNotificationService {
    */
   async getNotification(userId: string, notificationId: string): Promise<ExtendedMessage | null> {
     try {
+      const firestore = getFirebaseServices().firestore;
       const notificationPath = getUserNotificationPath(userId);
-      const docRef = doc(db, notificationPath, notificationId);
-      const docSnap = await getDoc(docRef);
+      const docRef = firestore.collection(notificationPath).doc(notificationId);
+      const docSnap = await docRef.get();
 
-      if (docSnap.exists()) {
+      if (docSnap.exists) {
         return this.convertFirebaseToExtended(docSnap.id, docSnap.data() as FirebaseNotification);
       }
       return null;
     } catch (error) {
-      console.error('Failed to get notification:', error);
+      logError('Failed to get notification', error as Error);
       throw error;
     }
   }
@@ -420,4 +406,3 @@ export class FirestoreNotificationService {
 }
 
 export default FirestoreNotificationService;
-

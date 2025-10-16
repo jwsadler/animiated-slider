@@ -1,19 +1,17 @@
 // src/services/FirebaseNotificationService.ts
 import { Platform } from 'react-native';
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  getDocs,
-  serverTimestamp,
-  Timestamp
-} from 'firebase/firestore';
-import { db, FCMToken, getUserTokenPath } from '../config/firebase';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { 
+  FCMToken, 
+  getUserTokenPath, 
+  getMessaging,
+  logInfo,
+  logError,
+  logDebug
+} from '../config/firebase-notifications';
+import { getFirebaseServices } from '../config/your-existing-firebase-config'; // Update this path
 
 export class FirebaseNotificationService {
   private static instance: FirebaseNotificationService;
@@ -45,7 +43,7 @@ export class FirebaseNotificationService {
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
       if (!enabled) {
-        console.warn('FCM: Notification permission not granted');
+        logError('FCM: Notification permission not granted', new Error('Permission denied'));
         return;
       }
 
@@ -58,9 +56,9 @@ export class FirebaseNotificationService {
       // Set up message listeners
       this.setupMessageListeners();
 
-      console.log('FCM: Initialized successfully for user:', userId);
+      logInfo('FCM: Initialized successfully for user:', userId);
     } catch (error) {
-      console.error('FCM: Initialization failed:', error);
+      logError('FCM: Initialization failed', error as Error);
       throw error;
     }
   }
@@ -79,12 +77,12 @@ export class FirebaseNotificationService {
         this.fcmToken = token;
         await this.saveTokenToFirestore(token);
         await AsyncStorage.setItem('fcm_token', token);
-        console.log('FCM: Token refreshed:', token.substring(0, 20) + '...');
+        logDebug('FCM: Token refreshed:', token.substring(0, 20) + '...');
         return token;
       }
       return null;
     } catch (error) {
-      console.error('FCM: Token refresh failed:', error);
+      logError('FCM: Token refresh failed', error as Error);
       return null;
     }
   }
@@ -96,27 +94,25 @@ export class FirebaseNotificationService {
     if (!this.currentUserId) return;
 
     try {
+      const firestore = getFirebaseServices().firestore;
+      
       const tokenData: Omit<FCMToken, 'id'> = {
         token,
         platform: Platform.OS as 'ios' | 'android',
         deviceId: await this.getDeviceId(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore.FieldValue.serverTimestamp(),
         isActive: true
       };
 
       const tokenPath = getUserTokenPath(this.currentUserId);
-      const tokenRef = doc(collection(db, tokenPath), token.substring(0, 20));
+      const tokenRef = firestore.collection(tokenPath).doc(token.substring(0, 20));
       
-      await setDoc(tokenRef, {
-        ...tokenData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      await tokenRef.set(tokenData);
 
-      console.log('FCM: Token saved to Firestore');
+      logInfo('FCM: Token saved to Firestore');
     } catch (error) {
-      console.error('FCM: Failed to save token to Firestore:', error);
+      logError('FCM: Failed to save token to Firestore', error as Error);
     }
   }
 
@@ -127,16 +123,17 @@ export class FirebaseNotificationService {
     if (!this.currentUserId || !this.fcmToken) return;
 
     try {
+      const firestore = getFirebaseServices().firestore;
       const tokenPath = getUserTokenPath(this.currentUserId);
-      const tokenRef = doc(collection(db, tokenPath), this.fcmToken.substring(0, 20));
+      const tokenRef = firestore.collection(tokenPath).doc(this.fcmToken.substring(0, 20));
       
-      await deleteDoc(tokenRef);
+      await tokenRef.delete();
       await AsyncStorage.removeItem('fcm_token');
       
       this.fcmToken = null;
-      console.log('FCM: Token removed');
+      logInfo('FCM: Token removed');
     } catch (error) {
-      console.error('FCM: Failed to remove token:', error);
+      logError('FCM: Failed to remove token', error as Error);
     }
   }
 
@@ -145,7 +142,7 @@ export class FirebaseNotificationService {
    */
   private setupTokenRefreshListener(): void {
     this.unsubscribeTokenRefresh = messaging().onTokenRefresh(async (token) => {
-      console.log('FCM: Token refreshed automatically');
+      logDebug('FCM: Token refreshed automatically');
       this.fcmToken = token;
       await this.saveTokenToFirestore(token);
       await AsyncStorage.setItem('fcm_token', token);
@@ -158,19 +155,19 @@ export class FirebaseNotificationService {
   private setupMessageListeners(): void {
     // Foreground message listener
     this.unsubscribeMessageListener = messaging().onMessage(async (remoteMessage) => {
-      console.log('FCM: Foreground message received:', remoteMessage);
+      logInfo('FCM: Foreground message received:', remoteMessage.notification?.title || 'No title');
       await this.handleForegroundMessage(remoteMessage);
     });
 
     // Background message handler
     messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-      console.log('FCM: Background message received:', remoteMessage);
+      logInfo('FCM: Background message received:', remoteMessage.notification?.title || 'No title');
       await this.handleBackgroundMessage(remoteMessage);
     });
 
     // Handle notification opened app
     messaging().onNotificationOpenedApp((remoteMessage) => {
-      console.log('FCM: Notification opened app:', remoteMessage);
+      logInfo('FCM: Notification opened app:', remoteMessage.notification?.title || 'No title');
       this.handleNotificationOpened(remoteMessage);
     });
 
@@ -179,7 +176,7 @@ export class FirebaseNotificationService {
       .getInitialNotification()
       .then((remoteMessage) => {
         if (remoteMessage) {
-          console.log('FCM: App opened from notification:', remoteMessage);
+          logInfo('FCM: App opened from notification:', remoteMessage.notification?.title || 'No title');
           this.handleNotificationOpened(remoteMessage);
         }
       });
@@ -279,4 +276,3 @@ export class FirebaseNotificationService {
 }
 
 export default FirebaseNotificationService;
-

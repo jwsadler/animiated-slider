@@ -1,19 +1,29 @@
-# Firebase Setup Guide for React Native Notifications
+# Firebase Notifications Integration Guide
 
-This guide will help you set up Firebase Cloud Messaging (FCM) and Firestore for the notification system.
+This guide explains how the notification system integrates with your **existing Firebase setup** and what additional configuration is needed.
 
-## 📋 Prerequisites
+## 🔗 Integration Overview
 
-1. Firebase project created at [Firebase Console](https://console.firebase.google.com/)
-2. React Native development environment set up
-3. iOS/Android project configured
+✅ **Your Existing Setup:**
+- Firebase App initialized with App Check
+- Firestore configured with `main-dev` database  
+- Authentication service ready
+- Multiple database instances (labels, config, messages)
+
+✅ **What We're Adding:**
+- Firebase Cloud Messaging (FCM) for push notifications
+- Extended Firebase services for notifications
+- Real-time notification listeners
+- FCM token management
 
 ## 🚀 Installation
 
-### 1. Install Dependencies
+### 1. Install Additional Dependencies
+
+Since you already have the core Firebase packages, you only need:
 
 ```bash
-npm install @react-native-firebase/app @react-native-firebase/messaging @react-native-firebase/firestore firebase @react-native-async-storage/async-storage events
+npm install @react-native-firebase/messaging @react-native-async-storage/async-storage events
 
 # For TypeScript projects
 npm install --save-dev @types/events
@@ -279,4 +289,3 @@ import { NotificationService } from './src/services/NotificationService';
 // New
 import { NotificationService } from './src/services/NotificationService.firebase';
 ```
-

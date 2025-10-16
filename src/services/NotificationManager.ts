@@ -3,6 +3,11 @@ import { ExtendedMessage } from '../types/notifications';
 import { FirebaseNotificationService } from './FirebaseNotificationService';
 import { FirestoreNotificationService, NotificationFilter, NotificationListener } from './FirestoreNotificationService';
 import { EventEmitter } from 'events';
+import { 
+  initializeExtendedFirebase,
+  logInfo,
+  logError 
+} from '../config/firebase-integration';
 
 export interface NotificationManagerEvents {
   'notifications_updated': (notifications: ExtendedMessage[]) => void;
@@ -38,9 +43,12 @@ export class NotificationManager extends EventEmitter {
   async initialize(userId: string): Promise<void> {
     try {
       if (this.isInitialized && this.currentUserId === userId) {
-        console.log('NotificationManager: Already initialized for user:', userId);
+        logInfo('NotificationManager: Already initialized for user:', userId);
         return;
       }
+
+      // Initialize extended Firebase services first
+      await initializeExtendedFirebase();
 
       // Clean up previous initialization
       if (this.isInitialized) {
@@ -59,9 +67,9 @@ export class NotificationManager extends EventEmitter {
       await this.updateUnreadCount();
 
       this.isInitialized = true;
-      console.log('NotificationManager: Initialized successfully for user:', userId);
+      logInfo('NotificationManager: Initialized successfully for user:', userId);
     } catch (error) {
-      console.error('NotificationManager: Initialization failed:', error);
+      logError('NotificationManager: Initialization failed', error as Error);
       this.emit('error', error);
       throw error;
     }
@@ -365,4 +373,3 @@ export class NotificationManager extends EventEmitter {
 }
 
 export default NotificationManager;
-

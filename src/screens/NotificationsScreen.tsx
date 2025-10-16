@@ -16,6 +16,7 @@ import { NotificationCard } from '../components/NotificationCard';
 import { designTokens } from '../design-system/design-tokens';
 import { componentStyles } from '../design-system/component-styles';
 import { Logger } from '../services/Logger';
+import { initializeExtendedFirebase } from '../config/firebase-integration';
 
 interface NotificationsScreenProps {
   onClose: () => void;
