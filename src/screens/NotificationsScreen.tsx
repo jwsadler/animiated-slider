@@ -41,21 +41,21 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const [page, setPage] = useState<number>(1);
   const [filters, setFilters] = useState<NotificationFilters>(() => initialFilters || {});
   const hasLoadedInitially = useRef(false);
+  const previousFiltersRef = useRef<string>('');
 
-  // Load notifications when component mounts
+  // Load notifications when component mounts or filters actually change
   useEffect(() => {
+    const currentFiltersString = JSON.stringify(filters);
+    
     if (!hasLoadedInitially.current) {
       console.log('NotificationsScreen: Initial load');
       hasLoadedInitially.current = true;
+      previousFiltersRef.current = currentFiltersString;
       loadNotifications(true);
       loadUnreadCount();
-    }
-  }, []);
-
-  // Load notifications when filters change (after initial load)
-  useEffect(() => {
-    if (hasLoadedInitially.current) {
-      console.log('NotificationsScreen: Filters changed, reloading:', filters);
+    } else if (previousFiltersRef.current !== currentFiltersString) {
+      console.log('NotificationsScreen: Filters actually changed, reloading:', filters);
+      previousFiltersRef.current = currentFiltersString;
       loadNotifications(true);
     }
   }, [JSON.stringify(filters)]);
@@ -106,11 +106,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   };
 
   const onRefresh = useCallback(async () => {
+    console.log('onRefresh: Refreshing notifications');
     setRefreshing(true);
     await loadNotifications(true);
     await loadUnreadCount();
     setRefreshing(false);
-  }, [filters]);
+  }, []); // Remove filters dependency to prevent unnecessary recreations
 
   const handleNotificationPress = async (notification: ExtendedMessage) => {
     Logger.userAction('NotificationsScreen', 'notification_press', {
@@ -296,7 +297,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           />
         }
         onEndReached={() => {
-          if (hasMore && !loading) {
+          if (hasMore && !loading && hasLoadedInitially.current) {
+            console.log('onEndReached: Loading more notifications');
             loadNotifications();
           }
         }}
