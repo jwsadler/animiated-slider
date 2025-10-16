@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { ExtendedMessage, NotificationFilters } from '../types/notifications';
-import { NotificationService } from '../services/NotificationService';
+import { NotificationService } from '../services/NotificationService.firebase';
 import { NotificationCard } from '../components/NotificationCard';
 import { designTokens } from '../design-system/design-tokens';
 import { componentStyles } from '../design-system/component-styles';
@@ -42,6 +42,60 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const [filters, setFilters] = useState<NotificationFilters>(() => initialFilters || {});
   const hasLoadedInitially = useRef(false);
   const previousFiltersRef = useRef<string>('');
+  const notificationService = useRef(NotificationService.getInstance());
+
+  // Initialize Firebase service and set up real-time listeners
+  useEffect(() => {
+    const initializeService = async () => {
+      try {
+        // Initialize with a demo user ID - replace with actual user ID from your auth system
+        const userId = 'F3D2dgimI5ZJIKQ09gjIjKqW6F33';
+        
+        if (!notificationService.current.isInitialized()) {
+          await notificationService.current.initialize(userId);
+        }
+
+        // Set up real-time listeners
+        notificationService.current.setupRealtimeListeners({
+          onNotificationsUpdated: (updatedNotifications) => {
+            console.log('Real-time notifications update:', updatedNotifications.length);
+            setNotifications(updatedNotifications);
+            setError(null);
+          },
+          onUnreadCountChanged: (count) => {
+            console.log('Unread count changed:', count);
+            setUnreadCount(count);
+          },
+          onError: (err) => {
+            console.error('Firebase notification error:', err);
+            setError(err.message);
+          }
+        });
+
+        console.log('Firebase notification service initialized');
+      } catch (err) {
+        console.error('Failed to initialize Firebase service:', err);
+        setError('Failed to initialize notification service');
+      }
+    };
+
+    initializeService();
+
+    // Cleanup listeners on unmount
+    return () => {
+      notificationService.current.removeRealtimeListeners({
+        onNotificationsUpdated: (updatedNotifications) => {
+          setNotifications(updatedNotifications);
+        },
+        onUnreadCountChanged: (count) => {
+          setUnreadCount(count);
+        },
+        onError: (err) => {
+          setError(err.message);
+        }
+      });
+    };
+  }, []);
 
   // Load notifications when component mounts or filters actually change
   useEffect(() => {
@@ -72,7 +126,9 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     try {
       const currentPage = reset ? 1 : page;
       console.log('Fetching notifications for page:', currentPage);
-      const response = await NotificationService.fetchNotifications(
+      
+      // Use Firebase service
+      const response = await notificationService.current.getNotifications(
         filters,
         currentPage,
         20,
@@ -90,6 +146,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
       }
 
       setHasMore(response.hasMore);
+      setUnreadCount(response.unreadCount);
     } catch (err) {
       setError('Failed to load notifications');
       console.error('Error loading notifications:', err);
@@ -100,7 +157,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 
   const loadUnreadCount = async () => {
     try {
-      const count = await NotificationService.getUnreadCount();
+      const count = await notificationService.current.getUnreadCount();
       setUnreadCount(count);
     } catch (err) {
       console.error('Error loading unread count:', err);
@@ -125,16 +182,11 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     // Mark as read if unread
     if (!notification.isRead) {
       try {
-        await NotificationService.updateNotification(
+        await notificationService.current.updateNotification(
           notification.id,
           'mark_read',
         );
-        setNotifications(prev =>
-          prev.map(n =>
-            n.id === notification.id ? { ...n, isRead: true } : n,
-          ),
-        );
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        // Real-time listener will update the UI automatically
       } catch (err) {
         Logger.error(
           'NotificationsScreen',
@@ -182,17 +234,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const toggleReadStatus = async (notification: ExtendedMessage) => {
     try {
       const action = notification.isRead ? 'mark_unread' : 'mark_read';
-      await NotificationService.updateNotification(notification.id, action);
-
-      setNotifications(prev =>
-        prev.map(n =>
-          n.id === notification.id ? { ...n, isRead: !n.isRead } : n,
-        ),
-      );
-
-      setUnreadCount(prev =>
-        notification.isRead ? prev + 1 : Math.max(0, prev - 1),
-      );
+      await notificationService.current.updateNotification(notification.id, action);
+      // Real-time listener will update the UI automatically
     } catch (err) {
       console.error('Error toggling read status:', err);
       Alert.alert('Error', 'Failed to update notification');
@@ -201,12 +244,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 
   const deleteNotification = async (notification: ExtendedMessage) => {
     try {
-      await NotificationService.updateNotification(notification.id, 'delete');
-      setNotifications(prev => prev.filter(n => n.id !== notification.id));
-
-      if (!notification.isRead) {
-        setUnreadCount(prev => Math.max(0, prev - 1));
-      }
+      await notificationService.current.updateNotification(notification.id, 'delete');
+      // Real-time listener will update the UI automatically
     } catch (err) {
       console.error('Error deleting notification:', err);
       Alert.alert('Error', 'Failed to delete notification');
@@ -225,6 +264,18 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     />
   );
 
+  // Test function to create a notification
+  const createTestNotification = async () => {
+    try {
+      const notificationId = await notificationService.current.createTestNotification();
+      console.log('Test notification created:', notificationId);
+      Alert.alert('Success', 'Test notification created!');
+    } catch (err) {
+      console.error('Failed to create test notification:', err);
+      Alert.alert('Error', 'Failed to create test notification');
+    }
+  };
+
   const renderHeader = () => (
     <View style={styles.header}>
       <View style={styles.titleRow}>
@@ -232,13 +283,17 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           <Text style={styles.backButtonText}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.screenTitle}>{title}</Text>
-        {onSettingsPress ? (
-          <TouchableOpacity style={styles.settingsButton} onPress={onSettingsPress}>
-            <Text style={styles.settingsIcon}>⚙️</Text>
+        <View style={styles.headerActions}>
+          {/* Test button for development */}
+          <TouchableOpacity style={styles.testButton} onPress={createTestNotification}>
+            <Text style={styles.testButtonText}>+</Text>
           </TouchableOpacity>
-        ) : (
-          <View style={styles.headerSpacer} />
-        )}
+          {onSettingsPress && (
+            <TouchableOpacity style={styles.settingsButton} onPress={onSettingsPress}>
+              <Text style={styles.settingsIcon}>⚙️</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -351,6 +406,24 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     marginHorizontal: designTokens.spacing.md,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: designTokens.spacing.sm,
+  },
+  testButton: {
+    width: designTokens.spacing.xl, // 32px
+    height: designTokens.spacing.xl, // 32px
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: designTokens.colors.primary[500],
+    borderRadius: designTokens.borderRadius.full,
+  },
+  testButtonText: {
+    fontSize: 18,
+    color: designTokens.colors.neutral[0],
+    fontWeight: designTokens.typography.weights.semibold,
   },
   headerSpacer: {
     width: designTokens.spacing.xl, // 32px
