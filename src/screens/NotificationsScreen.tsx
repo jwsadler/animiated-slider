@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -39,24 +39,29 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
-  // Memoize initial filters to prevent unnecessary re-renders
-  const memoizedInitialFilters = useMemo(() => initialFilters || {}, [initialFilters]);
-  const [filters, setFilters] = useState<NotificationFilters>(memoizedInitialFilters);
+  const [filters, setFilters] = useState<NotificationFilters>(() => initialFilters || {});
+  const hasLoadedInitially = useRef(false);
 
-  // Initial load
+  // Load notifications when component mounts
   useEffect(() => {
-    loadNotifications(true);
-    loadUnreadCount();
+    if (!hasLoadedInitially.current) {
+      console.log('NotificationsScreen: Initial load');
+      hasLoadedInitially.current = true;
+      loadNotifications(true);
+      loadUnreadCount();
+    }
   }, []);
 
-  // Reload when filters change (but not on initial mount)
+  // Load notifications when filters change (after initial load)
   useEffect(() => {
-    if (JSON.stringify(filters) !== JSON.stringify(memoizedInitialFilters)) {
+    if (hasLoadedInitially.current) {
+      console.log('NotificationsScreen: Filters changed, reloading:', filters);
       loadNotifications(true);
     }
-  }, [filters, memoizedInitialFilters]);
+  }, [JSON.stringify(filters)]);
 
   const loadNotifications = async (reset: boolean = false) => {
+    console.log('loadNotifications called with reset:', reset, 'loading:', loading);
     if (loading && !reset) return;
 
     setLoading(true);
@@ -64,16 +69,20 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 
     try {
       const currentPage = reset ? 1 : page;
+      console.log('Fetching notifications for page:', currentPage);
       const response = await NotificationService.fetchNotifications(
         filters,
         currentPage,
         20,
       );
 
+      console.log('Received notifications:', response.notifications.length);
       if (reset) {
+        console.log('Resetting notifications list');
         setNotifications(response.notifications);
         setPage(2);
       } else {
+        console.log('Appending to existing notifications');
         setNotifications(prev => [...prev, ...response.notifications]);
         setPage(prev => prev + 1);
       }
