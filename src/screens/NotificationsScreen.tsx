@@ -18,15 +18,19 @@ import { componentStyles } from '../design-system/component-styles';
 import { Logger } from '../services/Logger';
 
 interface NotificationsScreenProps {
+  onClose: () => void;
   onNotificationPress?: (notification: ExtendedMessage) => void;
   onSettingsPress?: () => void;
   initialFilters?: NotificationFilters;
+  title?: string;
 }
 
-const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
+export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
+  onClose,
   onNotificationPress,
   onSettingsPress,
   initialFilters,
+  title = 'Notifications',
 }) => {
   const [notifications, setNotifications] = useState<ExtendedMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -35,8 +39,12 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
-  const [filters, setFilters] = useState<NotificationFilters>(initialFilters || {});
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [filters, setFilters] = useState<NotificationFilters>(
+    initialFilters || {},
+  );
+  const [selectedFilter, setSelectedFilter] = useState<
+    'all' | 'unread' | 'read'
+  >('all');
 
   useEffect(() => {
     loadNotifications(true);
@@ -54,7 +62,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
       const response = await NotificationService.fetchNotifications(
         filters,
         currentPage,
-        20
+        20,
       );
 
       if (reset) {
@@ -94,23 +102,31 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     Logger.userAction('NotificationsScreen', 'notification_press', {
       notificationId: notification.id,
       notificationType: notification.type,
-      wasRead: notification.isRead
+      wasRead: notification.isRead,
     });
 
     // Mark as read if unread
     if (!notification.isRead) {
       try {
-        await NotificationService.updateNotification(notification.id, 'mark_read');
+        await NotificationService.updateNotification(
+          notification.id,
+          'mark_read',
+        );
         setNotifications(prev =>
           prev.map(n =>
-            n.id === notification.id ? { ...n, isRead: true } : n
-          )
+            n.id === notification.id ? { ...n, isRead: true } : n,
+          ),
         );
         setUnreadCount(prev => Math.max(0, prev - 1));
       } catch (err) {
-        Logger.error('NotificationsScreen', 'Error marking notification as read', err as Error, {
-          notificationId: notification.id
-        });
+        Logger.error(
+          'NotificationsScreen',
+          'Error marking notification as read',
+          err as Error,
+          {
+            notificationId: notification.id,
+          },
+        );
       }
     }
 
@@ -122,7 +138,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const handleNotificationLongPress = (notification: ExtendedMessage) => {
     Logger.userAction('NotificationsScreen', 'notification_long_press', {
       notificationId: notification.id,
-      notificationType: notification.type
+      notificationType: notification.type,
     });
 
     Alert.alert(
@@ -142,7 +158,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           style: 'destructive',
           onPress: () => deleteNotification(notification),
         },
-      ]
+      ],
     );
   };
 
@@ -150,15 +166,15 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     try {
       const action = notification.isRead ? 'mark_unread' : 'mark_read';
       await NotificationService.updateNotification(notification.id, action);
-      
+
       setNotifications(prev =>
         prev.map(n =>
-          n.id === notification.id ? { ...n, isRead: !n.isRead } : n
-        )
+          n.id === notification.id ? { ...n, isRead: !n.isRead } : n,
+        ),
       );
 
-      setUnreadCount(prev => 
-        notification.isRead ? prev + 1 : Math.max(0, prev - 1)
+      setUnreadCount(prev =>
+        notification.isRead ? prev + 1 : Math.max(0, prev - 1),
       );
     } catch (err) {
       console.error('Error toggling read status:', err);
@@ -170,7 +186,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     try {
       await NotificationService.updateNotification(notification.id, 'delete');
       setNotifications(prev => prev.filter(n => n.id !== notification.id));
-      
+
       if (!notification.isRead) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
@@ -184,13 +200,13 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     Logger.userAction('NotificationsScreen', 'filter_change', {
       previousFilter: selectedFilter,
       newFilter: filter,
-      notificationCount: notifications.length
+      notificationCount: notifications.length,
     });
 
     setSelectedFilter(filter);
-    
+
     const newFilters: NotificationFilters = { ...initialFilters };
-    
+
     if (filter === 'unread') {
       newFilters.isRead = false;
     } else if (filter === 'read') {
@@ -198,13 +214,13 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     } else {
       delete newFilters.isRead;
     }
-    
+
     setFilters(newFilters);
   };
 
   const markAllAsRead = async () => {
     Logger.userAction('NotificationsScreen', 'mark_all_as_read', {
-      unreadCount
+      unreadCount,
     });
 
     try {
@@ -212,9 +228,14 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (err) {
-      Logger.error('NotificationsScreen', 'Error marking all as read', err as Error, {
-        unreadCount
-      });
+      Logger.error(
+        'NotificationsScreen',
+        'Error marking all as read',
+        err as Error,
+        {
+          unreadCount,
+        },
+      );
       Alert.alert('Error', 'Failed to mark all notifications as read');
     }
   };
@@ -231,20 +252,29 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const renderHeader = () => (
     <View style={styles.header}>
       <View style={styles.titleRow}>
-        <Text style={styles.screenTitle}>Notifications</Text>
+        <TouchableOpacity style={styles.backButton} onPress={onClose}>
+          <Text style={styles.backButtonText}>‹</Text>
+        </TouchableOpacity>
+        <Text style={styles.screenTitle}>{title}</Text>
         {onSettingsPress && (
-          <TouchableOpacity onPress={onSettingsPress} style={styles.settingsButton}>
+          <TouchableOpacity
+            onPress={onSettingsPress}
+            style={styles.settingsButton}
+          >
             <Text style={styles.settingsButtonText}>⚙️</Text>
           </TouchableOpacity>
         )}
       </View>
-      
+
       {unreadCount > 0 && (
         <View style={styles.unreadRow}>
           <Text style={styles.unreadText}>
             {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
           </Text>
-          <TouchableOpacity onPress={markAllAsRead} style={styles.markAllButton}>
+          <TouchableOpacity
+            onPress={markAllAsRead}
+            style={styles.markAllButton}
+          >
             <Text style={styles.markAllButtonText}>Mark all as read</Text>
           </TouchableOpacity>
         </View>
@@ -252,7 +282,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 
       {/* Filter buttons */}
       <View style={styles.filterRow}>
-        {(['all', 'unread', 'read'] as const).map((filter) => (
+        {(['all', 'unread', 'read'] as const).map(filter => (
           <TouchableOpacity
             key={filter}
             style={[
@@ -277,7 +307,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 
   const renderFooter = () => {
     if (!loading || notifications.length === 0) return null;
-    
+
     return (
       <View style={styles.footer}>
         <ActivityIndicator size="small" color="#007AFF" />
@@ -290,10 +320,10 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
       <Text style={styles.emptyIcon}>📭</Text>
       <Text style={styles.emptyTitle}>No notifications</Text>
       <Text style={styles.emptyDescription}>
-        {selectedFilter === 'unread' 
+        {selectedFilter === 'unread'
           ? "You're all caught up! No unread notifications."
           : selectedFilter === 'read'
-          ? "No read notifications found."
+          ? 'No read notifications found.'
           : "You don't have any notifications yet."}
       </Text>
     </View>
@@ -306,7 +336,10 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           <Text style={styles.errorIcon}>⚠️</Text>
           <Text style={styles.errorTitle}>Something went wrong</Text>
           <Text style={styles.errorDescription}>{error}</Text>
-          <TouchableOpacity onPress={() => loadNotifications(true)} style={styles.retryButton}>
+          <TouchableOpacity
+            onPress={() => loadNotifications(true)}
+            style={styles.retryButton}
+          >
             <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
         </View>
@@ -319,7 +352,7 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
       <FlatList
         data={notifications}
         renderItem={renderNotification}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         ListHeaderComponent={renderHeader}
         ListFooterComponent={renderFooter}
         ListEmptyComponent={!loading ? renderEmpty : null}
@@ -338,7 +371,9 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
         }}
         onEndReachedThreshold={0.5}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={notifications.length === 0 ? styles.emptyContentContainer : undefined}
+        contentContainerStyle={
+          notifications.length === 0 ? styles.emptyContentContainer : undefined
+        }
       />
     </SafeAreaView>
   );
@@ -348,6 +383,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: designTokens.colors.neutral[50],
+  },
+  backButton: {
+    width: 40,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  backButtonText: {
+    fontSize: 42,
+    color: designTokens.colors.neutral[1000],
+    fontWeight: '300',
   },
   header: {
     backgroundColor: designTokens.colors.neutral[0],
