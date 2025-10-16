@@ -268,8 +268,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#007AFF']}
-            tintColor={'#007AFF'}
+            colors={[designTokens.colors.primary[500]]}
+            tintColor={designTokens.colors.primary[500]}
           />
         }
         onEndReached={() => {
@@ -290,15 +290,15 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: designTokens.colors.neutral[0],
   },
   header: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 20,
+    backgroundColor: designTokens.colors.neutral[0],
+    paddingHorizontal: designTokens.spacing.md + 4, // 20px
+    paddingTop: designTokens.spacing.md,
+    paddingBottom: designTokens.spacing.md + 4, // 20px
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: designTokens.colors.neutral[200],
   },
   titleRow: {
     flexDirection: 'row',
@@ -306,91 +306,84 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   backButton: {
-    width: 32,
-    height: 32,
+    width: designTokens.spacing.xl, // 32px
+    height: designTokens.spacing.xl, // 32px
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButtonText: {
-    fontSize: 24,
-    color: '#000000',
-    fontWeight: '400',
+    fontSize: designTokens.typography.sizes['2xl'],
+    color: designTokens.colors.neutral[1000],
+    fontWeight: designTokens.typography.weights.normal,
   },
   screenTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000000',
+    ...componentStyles.text.variants.h5, // lg size with medium weight
+    color: designTokens.colors.neutral[1000],
     flex: 1,
     textAlign: 'center',
-    marginHorizontal: 16,
+    marginHorizontal: designTokens.spacing.md,
   },
   headerSpacer: {
-    width: 32,
+    width: designTokens.spacing.xl, // 32px
   },
   footer: {
-    padding: 20,
+    padding: designTokens.spacing.md + 4, // 20px
     alignItems: 'center',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: designTokens.spacing.xl, // 32px
   },
   emptyContentContainer: {
     flexGrow: 1,
   },
   emptyIcon: {
-    fontSize: 48,
-    marginBottom: 16,
+    fontSize: designTokens.typography.sizes['5xl'], // 48px
+    marginBottom: designTokens.spacing.md,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-    marginBottom: 8,
+    ...componentStyles.text.variants.h5, // lg size with medium weight
+    color: designTokens.colors.neutral[700],
+    marginBottom: designTokens.spacing.sm,
     textAlign: 'center',
   },
   emptyDescription: {
-    fontSize: 14,
-    color: '#666666',
+    ...componentStyles.text.variants.body1,
+    color: designTokens.colors.neutral[500],
     textAlign: 'center',
-    lineHeight: 20,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: designTokens.spacing.xl, // 32px
   },
   errorIcon: {
-    fontSize: 48,
-    marginBottom: 16,
+    fontSize: designTokens.typography.sizes['5xl'], // 48px
+    marginBottom: designTokens.spacing.md,
   },
   errorTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-    marginBottom: 8,
+    ...componentStyles.text.variants.h5, // lg size with medium weight
+    color: designTokens.colors.neutral[700],
+    marginBottom: designTokens.spacing.sm,
     textAlign: 'center',
   },
   errorDescription: {
-    fontSize: 14,
-    color: '#666666',
+    ...componentStyles.text.variants.body1,
+    color: designTokens.colors.neutral[500],
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 24,
+    marginBottom: designTokens.spacing.lg,
   },
   retryButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
+    ...componentStyles.button.base,
+    ...componentStyles.button.variants.primary,
+    ...componentStyles.button.sizes.medium,
   },
   retryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    ...componentStyles.text.variants.buttonMedium,
+    color: componentStyles.button.variants.primary.textColor,
   },
 });
 
