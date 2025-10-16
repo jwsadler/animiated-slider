@@ -49,9 +49,11 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     
     if (!hasLoadedInitially.current) {
       console.log('NotificationsScreen: Initial load');
-      hasLoadedInitially.current = true;
       previousFiltersRef.current = currentFiltersString;
-      loadNotifications(true);
+      loadNotifications(true).then(() => {
+        console.log('Initial load completed, setting hasLoadedInitially to true');
+        hasLoadedInitially.current = true;
+      });
       loadUnreadCount();
     } else if (previousFiltersRef.current !== currentFiltersString) {
       console.log('NotificationsScreen: Filters actually changed, reloading:', filters);
@@ -297,9 +299,11 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           />
         }
         onEndReached={() => {
-          if (hasMore && !loading && hasLoadedInitially.current) {
-            console.log('onEndReached: Loading more notifications');
+          if (hasMore && !loading && hasLoadedInitially.current && notifications.length > 0) {
+            console.log('onEndReached: Loading more notifications, current count:', notifications.length);
             loadNotifications();
+          } else {
+            console.log('onEndReached: Blocked - hasMore:', hasMore, 'loading:', loading, 'hasLoaded:', hasLoadedInitially.current, 'notificationCount:', notifications.length);
           }
         }}
         onEndReachedThreshold={0.5}
