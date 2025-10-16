@@ -212,7 +212,13 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
           <Text style={styles.backButtonText}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.screenTitle}>{title}</Text>
-        <View style={styles.headerSpacer} />
+        {onSettingsPress ? (
+          <TouchableOpacity style={styles.settingsButton} onPress={onSettingsPress}>
+            <Text style={styles.settingsIcon}>⚙️</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.headerSpacer} />
+        )}
       </View>
     </View>
   );
@@ -325,6 +331,18 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: designTokens.spacing.xl, // 32px
+  },
+  settingsButton: {
+    width: designTokens.spacing.xl, // 32px
+    height: designTokens.spacing.xl, // 32px
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: designTokens.colors.neutral[100],
+    borderRadius: designTokens.borderRadius.full,
+  },
+  settingsIcon: {
+    fontSize: 16,
+    color: designTokens.colors.neutral[600],
   },
   footer: {
     padding: designTokens.spacing.md + 4, // 20px
