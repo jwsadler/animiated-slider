@@ -103,6 +103,10 @@ const App = () => {
 | `labelStyle` | `TextStyle` | `undefined` | Style for tab labels |
 | `iconStyle` | `TextStyle` | `undefined` | Style for tab icons |
 | `contentStyle` | `ViewStyle` | `undefined` | Style for the content area |
+| `disabled` | `boolean` | `false` | Whether the entire navigation is disabled |
+| `disabledColor` | `string` | `'rgba(255, 255, 255, 0.3)'` | Color for disabled tabs |
+| `disabledOpacity` | `number` | `0.5` | Opacity for disabled tabs |
+| `disabledComponent` | `React.ComponentType` | `undefined` | Component to show when navigation is disabled |
 
 ## TabConfig Interface
 
@@ -112,6 +116,7 @@ interface TabConfig {
   label: string;                 // Display label for the tab
   icon: React.ReactElement;      // Icon component (should accept color and size props)
   component: React.ComponentType<any>; // Screen component to render
+  disabled?: boolean;            // Whether this specific tab is disabled
 }
 ```
 
@@ -142,6 +147,47 @@ interface TabConfig {
   containerStyle={{ backgroundColor: '#000000' }}
 />
 ```
+
+## Disabled State
+
+The component supports both global and individual tab disabled states:
+
+### Global Disabled State
+```tsx
+<AppleGlassBottomTabNavigation
+  tabs={tabs}
+  disabled={true}
+  disabledColor="rgba(255, 255, 255, 0.3)"
+  disabledOpacity={0.5}
+  disabledComponent={DisabledScreen}
+/>
+```
+
+### Individual Tab Disabled State
+```tsx
+const tabs: TabConfig[] = [
+  {
+    id: 'home',
+    label: 'Home',
+    icon: <HomeIcon />,
+    component: HomeScreen,
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: <SettingsIcon />,
+    component: SettingsScreen,
+    disabled: true, // This tab will be disabled
+  },
+];
+```
+
+When disabled:
+- Tabs become non-interactive
+- Colors change to `disabledColor`
+- Opacity reduces to `disabledOpacity`
+- Animations are prevented
+- Optional `disabledComponent` can be shown instead of active content
 
 ## Animation Details
 

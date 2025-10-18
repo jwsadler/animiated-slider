@@ -18,6 +18,7 @@ export interface TabConfig {
   label: string;
   icon: React.ReactElement;
   component: React.ComponentType<any>;
+  disabled?: boolean;
 }
 
 // Props interface
@@ -37,6 +38,10 @@ export interface AppleGlassBottomTabNavigationProps {
   onTabChange?: (tabId: string) => void;
   blurType?: 'light' | 'dark' | 'xlight';
   blurAmount?: number;
+  disabled?: boolean;
+  disabledColor?: string;
+  disabledOpacity?: number;
+  disabledComponent?: React.ComponentType;
 }
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -57,6 +62,10 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
   onTabChange,
   blurType = 'light',
   blurAmount = 10,
+  disabled = false,
+  disabledColor = 'rgba(255, 255, 255, 0.3)',
+  disabledOpacity = 0.5,
+  disabledComponent,
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab || tabs[0]?.id || '');
   
@@ -132,7 +141,11 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
   }, [activeTab, tabs, indicatorPosition, indicatorWidth, tabAnimations]);
 
   const handleTabPress = (tabId: string) => {
-    if (tabId === activeTab) return;
+    if (tabId === activeTab || disabled) return;
+    
+    // Check if specific tab is disabled
+    const tab = tabs.find(t => t.id === tabId);
+    if (tab?.disabled) return;
     
     // Haptic feedback (iOS only)
     if (Platform.OS === 'ios') {
@@ -145,6 +158,10 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
   };
 
   const handleTabPressIn = (tabId: string) => {
+    if (disabled) return;
+    const tab = tabs.find(t => t.id === tabId);
+    if (tab?.disabled) return;
+    
     const animations = tabAnimations[tabId];
     Animated.spring(animations.scale, {
       toValue: 0.95,
@@ -155,6 +172,10 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
   };
 
   const handleTabPressOut = (tabId: string) => {
+    if (disabled) return;
+    const tab = tabs.find(t => t.id === tabId);
+    if (tab?.disabled) return;
+    
     const animations = tabAnimations[tabId];
     const isActive = tabId === activeTab;
     Animated.spring(animations.scale, {
@@ -167,12 +188,17 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
 
   const activeTabConfig = tabs.find(tab => tab.id === activeTab);
   const ActiveComponent = activeTabConfig?.component;
+  const DisabledComponent = disabledComponent;
 
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[styles.container, containerStyle, disabled && { opacity: disabledOpacity }]}>
       {/* Content Area */}
       <View style={[styles.content, contentStyle]}>
-        {ActiveComponent ? <ActiveComponent /> : null}
+        {disabled && DisabledComponent ? (
+          <DisabledComponent />
+        ) : ActiveComponent ? (
+          <ActiveComponent />
+        ) : null}
       </View>
 
       {/* Glass Tab Bar Container */}
@@ -206,7 +232,12 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
         <View style={[styles.tabBar, tabBarStyle]}>
           {tabs.map((tab, index) => {
             const isActive = tab.id === activeTab;
-            const color = isActive ? activeColor : inactiveColor;
+            const isTabDisabled = disabled || tab.disabled;
+            const color = isTabDisabled 
+              ? disabledColor 
+              : isActive 
+                ? activeColor 
+                : inactiveColor;
             const animations = tabAnimations[tab.id];
 
             return (
@@ -216,7 +247,8 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
                 onPress={() => handleTabPress(tab.id)}
                 onPressIn={() => handleTabPressIn(tab.id)}
                 onPressOut={() => handleTabPressOut(tab.id)}
-                activeOpacity={1}
+                activeOpacity={isTabDisabled ? 1 : 0.7}
+                disabled={isTabDisabled}
               >
                 <Animated.View
                   style={[
@@ -226,7 +258,7 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
                         { scale: animations.scale },
                         { translateY: animations.translateY },
                       ],
-                      opacity: animations.opacity,
+                      opacity: isTabDisabled ? disabledOpacity : animations.opacity,
                     },
                   ]}
                 >
@@ -235,7 +267,7 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
                     style={[
                       styles.glowEffect,
                       {
-                        opacity: animations.glowOpacity,
+                        opacity: isTabDisabled ? 0 : animations.glowOpacity,
                       },
                     ]}
                   />
@@ -249,11 +281,14 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
                       },
                     ]}
                   >
-                    {React.cloneElement(tab.icon, {
-                      color: color,
-                      size: 24,
-                      style: [{ color }, iconStyle],
-                    })}
+                    {React.isValidElement(tab.icon) 
+                      ? React.cloneElement(tab.icon as React.ReactElement<any>, {
+                          color: color,
+                          size: 24,
+                          style: [{ color }, iconStyle],
+                        })
+                      : tab.icon
+                    }
                   </Animated.View>
 
                   {/* Label */}
@@ -262,7 +297,7 @@ export const AppleGlassBottomTabNavigation: React.FC<AppleGlassBottomTabNavigati
                       styles.label,
                       { color },
                       labelStyle,
-                      isActive && styles.activeLabel,
+                      isActive && !isTabDisabled && styles.activeLabel,
                     ]}
                   >
                     {tab.label}
