@@ -20,14 +20,16 @@ This guide explains how the notification system integrates with your **existing 
 
 ### 1. Install Additional Dependencies
 
-Since you already have the core Firebase packages, you only need:
+Since you already have the core Firebase packages at v23.x, you only need:
 
 ```bash
-npm install @react-native-firebase/messaging @react-native-async-storage/async-storage events
+npm install @react-native-firebase/messaging@^23.1.2 events@^3.3.0
 
-# For TypeScript projects
-npm install --save-dev @types/events
+# For TypeScript projects (optional)
+npm install --save-dev @types/events@^3.0.0
 ```
+
+**Note:** You already have `@react-native-async-storage/async-storage@^1.24.0` in your package.json, so no need to install it again.
 
 ### 2. iOS Setup
 

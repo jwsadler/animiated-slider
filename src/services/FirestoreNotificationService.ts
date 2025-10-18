@@ -10,7 +10,7 @@ import {
   logDebug
 } from '../config/firebase-notifications';
 import { ExtendedMessage } from '../types/notifications';
-import { getFirebaseServices } from '../config/your-existing-firebase-config'; // Update this path
+import { getExtendedFirebaseServices } from '../config/firebase-integration';
 
 export interface NotificationFilter {
   type?: string[];
@@ -46,7 +46,7 @@ export class FirestoreNotificationService {
     notificationData: Omit<FirebaseNotification, 'id' | 'createdAt' | 'updatedAt' | 'userId'>
   ): Promise<string> {
     try {
-      const firestore = getFirebaseServices().firestore;
+      const firestore = getExtendedFirebaseServices().firestore;
       const notificationPath = getUserNotificationPath(userId);
       const notificationsRef = firestore.collection(notificationPath);
 
@@ -71,7 +71,7 @@ export class FirestoreNotificationService {
    */
   async getNotification(userId: string, notificationId: string): Promise<ExtendedMessage | null> {
     try {
-      const firestore = getFirebaseServices().firestore;
+      const firestore = getExtendedFirebaseServices().firestore;
       const notificationPath = getUserNotificationPath(userId);
       const docRef = firestore.collection(notificationPath).doc(notificationId);
       const docSnap = await docRef.get();

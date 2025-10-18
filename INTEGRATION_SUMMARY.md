@@ -82,8 +82,10 @@ Logger.error('NotificationService', 'Error occurred', error);
 
 ### Additional Dependencies Needed
 ```bash
-npm install @react-native-firebase/messaging @react-native-async-storage/async-storage events
+npm install @react-native-firebase/messaging@^23.1.2 events@^3.3.0
 ```
+
+**Note:** You already have `@react-native-async-storage/async-storage@^1.24.0` in your package.json.
 
 ## 🚀 Usage
 
@@ -175,4 +177,3 @@ const notificationId = await notificationService.createTestNotification();
 - ✅ **Maintainable**: Clean separation of concerns and modular design
 
 The notification system is now ready to use and fully integrated with your existing Firebase infrastructure!
-

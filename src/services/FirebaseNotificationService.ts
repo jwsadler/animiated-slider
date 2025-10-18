@@ -11,7 +11,7 @@ import {
   logError,
   logDebug
 } from '../config/firebase-notifications';
-import { getFirebaseServices } from '../config/your-existing-firebase-config'; // Update this path
+import { getExtendedFirebaseServices } from '../config/firebase-integration';
 
 export class FirebaseNotificationService {
   private static instance: FirebaseNotificationService;
@@ -94,7 +94,7 @@ export class FirebaseNotificationService {
     if (!this.currentUserId) return;
 
     try {
-      const firestore = getFirebaseServices().firestore;
+      const firestore = getExtendedFirebaseServices().firestore;
       
       const tokenData: Omit<FCMToken, 'id'> = {
         token,
@@ -123,7 +123,7 @@ export class FirebaseNotificationService {
     if (!this.currentUserId || !this.fcmToken) return;
 
     try {
-      const firestore = getFirebaseServices().firestore;
+      const firestore = getExtendedFirebaseServices().firestore;
       const tokenPath = getUserTokenPath(this.currentUserId);
       const tokenRef = firestore.collection(tokenPath).doc(this.fcmToken.substring(0, 20));
       

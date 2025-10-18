@@ -1,21 +1,26 @@
 {
   "additional_dependencies": {
-    "@react-native-firebase/messaging": "^18.6.1",
-    "@react-native-async-storage/async-storage": "^1.19.5",
+    "@react-native-firebase/messaging": "^23.1.2",
     "events": "^3.3.0"
   },
   "devDependencies": {
     "@types/events": "^3.0.0"
   },
-  "note": "These are the ADDITIONAL dependencies needed for the notification system. Your existing Firebase setup already includes @react-native-firebase/app, @react-native-firebase/firestore, and @react-native-firebase/auth. Only install the messaging package and async storage if not already present.",
+  "note": "Based on your package.json, you already have most Firebase packages at v23.x. You only need to install messaging and events.",
   "existing_dependencies": {
     "already_in_your_project": [
-      "@react-native-firebase/app",
-      "@react-native-firebase/firestore", 
-      "@react-native-firebase/auth",
-      "@react-native-firebase/app-check"
+      "@react-native-firebase/app: ^23.1.2",
+      "@react-native-firebase/firestore: ^23.1.2", 
+      "@react-native-firebase/auth: ^23.1.2",
+      "@react-native-firebase/app-check: ^23.3.1",
+      "@react-native-async-storage/async-storage: ^1.24.0"
     ]
   },
-  "install_command": "npm install @react-native-firebase/messaging @react-native-async-storage/async-storage events"
+  "install_command": "npm install @react-native-firebase/messaging@^23.1.2 events@^3.3.0",
+  "version_compatibility": {
+    "firebase_version": "23.x",
+    "react_native_version": "0.81.4",
+    "status": "compatible"
+  }
 }
 
